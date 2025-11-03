@@ -9,7 +9,6 @@ import pyautogui
 import webbrowser
 import keyboard
 from PySide6.QtCore import QTimer
-import pickle
 import mouse
 
 
@@ -17,7 +16,12 @@ class Terminal(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.commands = ["link", "macro", "google", "where"]
+        self.commands = {"link": self.cmd_link,
+                        "macro": self.cmd_macro,
+                        "search": self.cmd_search,
+                        "where": self.cmd_where,
+                        "math": self.cmd_math,
+                        "meta": self.cmd_meta, }
         self.links = {}
         self.macros = {}
 
@@ -33,7 +37,7 @@ class Terminal(QMainWindow):
         self.setWindowTitle("Terminal")
 
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(0, 0, 0))  # 127/255 = ~50%
+        palette.setColor(QPalette.Window, QColor(0, 0, 0, 127))  # 127/255 = ~50%
         self.setPalette(palette)
 
         self.container = QWidget()
@@ -59,46 +63,36 @@ class Terminal(QMainWindow):
 
         self.setCentralWidget(self.container)
 
-        self.activateWindow()
-        self.raise_()
-        self.line_edit.setFocus()
+        self.restore_focus()
 
     def restore_focus(self):
-        self.show()  # show the window if hidden
+        """
+        Brings terminal window back to top and puts it in focus.
+        """
+        self.show()  # show the window
         self.raise_()  # bring to top
         self.activateWindow()  # request focus
         self.line_edit.setFocus()  # put cursor in input
 
     def execute(self, cmd):
+        """
+        Determines command handling and routing to subfunctions.
+        :rtype: None
+        """
         if not cmd:
             return
         cmd = cmd.split()
+        args = cmd[1:]
+        cmd = cmd[0]
 
         self.outputted = False
 
-        if cmd[0] in self.commands:
-            if cmd[0] == "google":
-                query = ' '.join(cmd[1:])
-                webbrowser.open(f"https://www.google.com/search?q={query}")
-                self.output("success", "green")
+        if cmd in self.commands:
+            func = self.commands[cmd]
+            func(args)
 
-
-            elif cmd[0] == "where":
-                self.output(str(pyautogui.position()), "green")
-
-
-            elif cmd[0] == "link":
-                self.output("statement has no effect", "yellow")
-                self.link(cmd[1:])
-
-
-            elif cmd[0] == "macro":
-                self.output("statement has no effect", "yellow")
-                self.macro(cmd[1:])
-
-
-        elif cmd[0] in self.links.keys():
-            link = self.links[cmd[0]]
+        elif cmd in self.links.keys():
+            link = self.links[cmd]
             if link[1] == "url":
                 webbrowser.open(link[0])
                 self.output(f"opening link {link[0]}", "green")
@@ -108,10 +102,9 @@ class Terminal(QMainWindow):
 
         elif cmd[0] in self.macros:
             print('macroing!')
-
             self.clearFocus()
             self.hide()
-            keyboard_events, mouse_events = self.macros[cmd[0]]
+            keyboard_events, mouse_events = self.macros[cmd]
             play_macro(keyboard_events, mouse_events)
             self.setFocus()
             self.show()
@@ -121,7 +114,7 @@ class Terminal(QMainWindow):
             self.output("command not found", "red")
         QTimer.singleShot(100, self.restore_focus)
 
-
+    # TODO - make this
     def open_file_in_finder(self, link):
         try:
             subprocess.run(["open", "-R", link], check=True)
@@ -129,8 +122,12 @@ class Terminal(QMainWindow):
         except subprocess.CalledProcessError as e:
             self.output(f"couldn't open file: {e}", "red")
 
+    # TODO - make this
+    def open_file(self, url):
+        pass
+
     # TODO - establish more types of links
-    def link(self, cmd):
+    def cmd_link(self, cmd):
         try:
             if cmd[0] == "add":
                 user_cmd = cmd[cmd.index("-c") + 1]
@@ -158,8 +155,8 @@ class Terminal(QMainWindow):
 
             # Displays all available links
             elif cmd[0] == "list":
-                stuff = [f"{key}: {value}" for key, value in self.links.items()]
-                self.output("\n".join(stuff), "blue")
+                stuff = [f"{key}: {value[0]}" for key, value in self.links.items()]
+                self.output("\n".join(stuff), "aqua")
 
 
             # Remove a link
@@ -172,12 +169,8 @@ class Terminal(QMainWindow):
         except:
             self.output("invalid syntax", "red")
 
-
-    def open_file(self, url):
-        pass
-
-
-    def macro(self, cmd):
+    # TODO - make this work
+    def cmd_macro(self, cmd):
         try:
             if cmd[0] == "record":
                 name = cmd[1]
@@ -188,10 +181,9 @@ class Terminal(QMainWindow):
 
                 keyboard.start_recording()
                 mouse.hook(mouse_events.append)
-                keyboard.wait('`')
+                keyboard.wait('F9')
                 keyboard_events = keyboard.stop_recording()
                 mouse.unhook(mouse_events.append)
-
                 self.show()
 
                 self.macros[name] = keyboard_events, mouse_events
@@ -199,7 +191,7 @@ class Terminal(QMainWindow):
             elif cmd[0] == "list":
                 stuff = [name for name in self.macros]
                 print('hi')
-                self.output("\n".join(stuff), "blue")
+                self.output("\n".join(stuff), "aqua")
 
             elif cmd[0] == "remove" or cmd[0] == "delete":
                 if cmd[1] in self.macros:
@@ -210,16 +202,76 @@ class Terminal(QMainWindow):
                 self.output("invalid syntax", "red")
 
         except IndexError:
-            self.output(f"no options specified", "red")
+            self.output(f"incomplete syntax", "red")
         except:
             self.output("something went wrong", "red")
 
+    # TODO - make this safe
+    def cmd_math(self, cmd):
+        """Evaluates arithmetic expressions
+        NOTE: MAKE SAFER LATER?"""
+        exp = ''.join(cmd)
+        if "^" in exp:
+            exp = exp.replace("^", "**")
+        valid = "1234567890-+/*.()"
+        for i in exp:
+            if i not in valid:
+                self.output("only numbers and operators allowed", "red")
+                return
+
+        self.output(str(eval(exp)), "aqua")
+
+    def cmd_meta(self, cmd):
+        try:
+            match cmd[0]:
+                # change window opacity
+                case "opacity":
+                    self.setWindowOpacity(float(cmd[1]))
+                # change background color
+                case "bg":
+                    palette = self.palette()
+                    palette.setColor(QPalette.Window, QColor(int(cmd[1]), int(cmd[2]), int(cmd[3])))
+                    self.setPalette(palette)
+                # change text color
+                case "text":
+                    if len(cmd) == 1:
+                        self.line_edit.setStyleSheet(f"""QLineEdit {{
+                                                   color: white;
+                                                   background-color: rgba(0, 0, 0, 255);
+                                                   border: 0px solid #666;
+                                                   font-size: 18px;
+                                            }}""")
+                    else:
+                        self.line_edit.setStyleSheet(f"""QLineEdit {{
+                               color: rgb({int(cmd[1])}, {int(cmd[2])}, {int(cmd[3])});
+                               background-color: rgba(0, 0, 0, 255);
+                               border: 0px solid #666;
+                               font-size: 18px;
+                        }}""")
+                # except for all other cases
+                case _:
+                    self.output("invalid syntax", "red")
+                    return
+            self.output("success", "green")
+        except IndexError:
+            self.output("incomplete syntax", "red")
+        except:
+            self.output("you messed something up", "red")
+
+    def cmd_where(self, cmd):
+        pt = pyautogui.position()
+        self.output(f"({pt.x}, {pt.y})", "green")
+
+    def cmd_search(self, cmd):
+        query = ' '.join(cmd)
+        #         webbrowser.open(f"https://www.google.com/search?q={query}")
+        #         self.output("success", "green")
+        #
 
     def output(self, text, color):
         self.outputted = True
         self.output_label.setText(text)
         self.output_label.setStyleSheet(f"color: {color}; font-size: 18px")
-
 
     def run_terminal_line(self):
         command = self.line_edit.text()
@@ -227,7 +279,6 @@ class Terminal(QMainWindow):
         self.past_events.append(command)
         self.past_events_label.setText('\n'.join(self.past_events))
         self.line_edit.setText("")
-
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
@@ -250,6 +301,7 @@ def play_macro(k_events, m_events):
     t2.start()
     t1.join()
     t2.join()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
