@@ -1,0 +1,16 @@
+Are you looking to develop with ConsoleC?
+
+--------Section 1: Links--------
+I'm basically programming my own scripting language at this point 😭
+
+
+--------Section 2: Custom Commands--------
+To create custom commands, you should create one or multiple files with functions inside.
+Each function should be named cmd_[your command name] (for example, cmd_test for a test command).
+It should take two parameters: console and args.
+The console parameter is the console instance that called the command, and args is an array of the arguments given.
+To give output, each function should run the console.output(message: str, color: str) function.
+The message is outputted by the console in the color given.
+The standard currently used is red for error, green for success, and blue for information/specific output.
+
+Good luck!

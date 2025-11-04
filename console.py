@@ -23,9 +23,8 @@ class Console(QMainWindow):
         # Terminal version and command dictionary
         self.version = 0.1
         self.commands = {"link": self.cmd_link,
-                         "macro": self.cmd_macro,
-                         "meta": self.cmd_meta,
-                         "help": self.cmd_help,}
+                         "macro": self.cmd_macro,}
+        self.command_sources = {}
         self.load_commands()
         self.links = {}
         self.macros = {}
@@ -41,7 +40,8 @@ class Console(QMainWindow):
         # PySide6 window setup
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.showFullScreen()
-        self.setWindowOpacity(0.8)
+        self.defaultOpacity = 0.85
+        self.setWindowOpacity(self.defaultOpacity)
 
         self.setWindowTitle("Terminal")
 
@@ -78,11 +78,14 @@ class Console(QMainWindow):
         """Reads all files from commands/ and loads all cmd_ functions."""
         for _, module_name, _ in pkgutil.iter_modules(command_path):
             module = importlib.import_module(f"commands.{module_name}")
+            self.command_sources[module_name] = [module.__doc__.strip().splitlines()[0]]
+
             for attr_name in dir(module):
                 attr = getattr(module, attr_name)
                 if callable(attr) and attr_name.startswith('cmd_'):
                     cmd_name = attr_name[4:]  # Remove cmd_
                     self.commands[cmd_name] = attr
+                    self.command_sources[module_name].append(cmd_name)
                     print(f"Loaded command: {cmd_name} from {module_name}")
 
     def restore_focus(self):
@@ -116,9 +119,6 @@ class Console(QMainWindow):
             if link[1] == "url":
                 webbrowser.open(link[0])
                 self.output(f"opening link {link[0]}", "green")
-            if link[1] == "file":
-                # TODO write some code to open file in os's file viewer`
-                self.open_file_in_finder(link[0])
 
         elif cmd[0] in self.macros:
             print('macroing!')
@@ -133,18 +133,6 @@ class Console(QMainWindow):
         if not self.outputted:
             self.output("command not found", "red")
         QTimer.singleShot(100, self.restore_focus)
-
-    # TODO - make this
-    def open_file_in_finder(self, link):
-        try:
-            subprocess.run(["open", "-R", link], check=True)
-            self.output(f"opening file {link}", "green")
-        except subprocess.CalledProcessError as e:
-            self.output(f"couldn't open file: {e}", "red")
-
-    # TODO - make this
-    def open_file(self, url):
-        pass
 
     # TODO - establish more types of links
     def cmd_link(self, cmd):
@@ -168,7 +156,7 @@ class Console(QMainWindow):
                     self.links[user_cmd] = (link, "url")
                     self.output(f"link {user_cmd} to {link} added", "green")
                 elif link_type == "file":
-                    #TODO - test file validity
+                    # TODO - test file validity
                     self.links[user_cmd] = (link, "file")
                     self.output(f"link {user_cmd} to {link} added", "green")
 
@@ -226,61 +214,11 @@ class Console(QMainWindow):
         except:
             self.output("something went wrong", "red")
 
-    def cmd_meta(self, cmd):
-        try:
-            match cmd[0]:
-                # change window opacity
-                case "opacity":
-                    self.setWindowOpacity(float(cmd[1]))
-                # change background color
-                case "bg":
-                    palette = self.palette()
-                    palette.setColor(QPalette.Window, QColor(int(cmd[1]), int(cmd[2]), int(cmd[3])))
-                    self.setPalette(palette)
-                # change text color
-                case "text":
-                    if len(cmd) == 1:
-                        self.line_edit.setStyleSheet(f"""QLineEdit {{
-                                                   color: white;
-                                                   background-color: rgba(0, 0, 0, 255);
-                                                   border: 0px solid #666;
-                                                   font-size: 18px;
-                                            }}""")
-                    else:
-                        self.line_edit.setStyleSheet(f"""QLineEdit {{
-                               color: rgb({int(cmd[1])}, {int(cmd[2])}, {int(cmd[3])});
-                               background-color: rgba(0, 0, 0, 255);
-                               border: 0px solid #666;
-                               font-size: 18px;
-                        }}""")
-                # except for all other cases
-                case _:
-                    self.output("invalid syntax", "red")
-                    return
-            self.output("success", "green")
-        except IndexError:
-            self.output("incomplete syntax", "red")
-        except:
-            self.output("you messed something up", "red")
-
-    def cmd_help(self, cmd):
-        if cmd:
-            pass
-        else:
-            text = "\n".join(self.commands)
-            self.output(f"Raphael's Console v{self.version} | Built-in commands:\n{text}", "aqua")
-
-    # TODO - make this
-    def cmd_open_url(self, cmd):
-        pass
-
-    # TODO - make this
-    def cmd_open_file(self, cmd):
-        pass
-
-    # TODO - make this
-    def cmd_open_app(self, cmd):
-        pass
+    def changeBackground(self, color):
+        r, g, b, a = color
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(int(r), int(g), int(b), int(a)))
+        self.setPalette(palette)
 
     def output(self, text, color):
         self.outputted = True

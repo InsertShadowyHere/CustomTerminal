@@ -1,4 +1,4 @@
-"""
+"""Automation commands
 This module contains automation functions.
 Functions:
 link
