@@ -1,7 +1,7 @@
+"""This file contains the """
 import subprocess
 import sys
 import threading
-
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import Qt
@@ -12,21 +12,23 @@ from PySide6.QtCore import QTimer
 import mouse
 
 
-class Terminal(QMainWindow):
+class Console(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        self.version = 0.1
         self.commands = {"link": self.cmd_link,
-                        "macro": self.cmd_macro,
-                        "search": self.cmd_search,
-                        "where": self.cmd_where,
-                        "math": self.cmd_math,
-                        "meta": self.cmd_meta, }
+                         "macro": self.cmd_macro,
+                         "search": self.cmd_search,
+                         "where": self.cmd_where,
+                         "math": self.cmd_math,
+                         "meta": self.cmd_meta,
+                         "help": self.cmd_help,}
         self.links = {}
         self.macros = {}
 
         self.outputted = False
 
+        self.history_pos = 0
         self.past_events = []
         self.log = ""
 
@@ -264,9 +266,23 @@ class Terminal(QMainWindow):
 
     def cmd_search(self, cmd):
         query = ' '.join(cmd)
-        #         webbrowser.open(f"https://www.google.com/search?q={query}")
-        #         self.output("success", "green")
-        #
+        webbrowser.open(f"https://www.google.com/search?q={query}")
+        self.output("success", "green")
+
+
+    def cmd_help(self, cmd):
+        if cmd:
+            pass
+        else:
+            text = "\n".join(self.commands)
+            self.output(f"Raphael's Console v{self.version} | Built-in commands:\n{text}", "aqua")
+
+    def cmd_sys(self, cmd):
+        """Allows editing of system variables like
+        volume, brightness, wifi, etc.
+        Primarily used for automation, I guess
+        """
+        pass
 
     def output(self, text, color):
         self.outputted = True
@@ -279,12 +295,32 @@ class Terminal(QMainWindow):
         self.past_events.append(command)
         self.past_events_label.setText('\n'.join(self.past_events))
         self.line_edit.setText("")
+        self.history_pos = 0
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
             self.run_terminal_line()
-        if event.key() == Qt.Key.Key_Escape:
+        elif event.key() == Qt.Key.Key_Escape:
             self.close()
+        elif event.key() == Qt.Key.Key_Up:
+            # add one to history pos and then clamp
+            self.history_pos += 1
+            if self.history_pos > len(self.past_events):
+                self.history_pos = len(self.past_events)
+
+            if self.history_pos == 0:
+                self.line_edit.clear()
+            else:
+                self.line_edit.setText(self.past_events[-self.history_pos])
+        elif event.key() == Qt.Key.Key_Down:
+            self.history_pos -= 1
+            if self.history_pos < 0:
+                self.history_pos = 0
+
+            if self.history_pos == 0:
+                self.line_edit.clear()
+            else:
+                self.line_edit.setText(self.past_events[-self.history_pos])
 
 
 def play_macro(k_events, m_events):
@@ -306,7 +342,7 @@ def play_macro(k_events, m_events):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    window = Terminal()
+    window = Console()
     window.show()
 
     sys.exit(app.exec())

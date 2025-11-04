@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtCore import Qt
 import sys
-import terminal
+import console
 
 
 
