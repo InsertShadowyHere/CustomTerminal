@@ -1,30 +1,36 @@
 """This file contains the """
+import importlib
+import pkgutil
 import subprocess
 import sys
 import threading
+import webbrowser
+
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import Qt
-import pyautogui
-import webbrowser
 import keyboard
 from PySide6.QtCore import QTimer
 import mouse
+
+from commands import __path__ as command_path
 
 
 class Console(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # Terminal version and command dictionary
         self.version = 0.1
         self.commands = {"link": self.cmd_link,
                          "macro": self.cmd_macro,
-                         "search": self.cmd_search,
-                         "where": self.cmd_where,
-                         "math": self.cmd_math,
                          "meta": self.cmd_meta,
                          "help": self.cmd_help,}
+        self.load_commands()
         self.links = {}
         self.macros = {}
+
+        self.todo = []
 
         self.outputted = False
 
@@ -32,6 +38,7 @@ class Console(QMainWindow):
         self.past_events = []
         self.log = ""
 
+        # PySide6 window setup
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.showFullScreen()
         self.setWindowOpacity(0.8)
@@ -67,6 +74,17 @@ class Console(QMainWindow):
 
         self.restore_focus()
 
+    def load_commands(self):
+        """Reads all files from commands/ and loads all cmd_ functions."""
+        for _, module_name, _ in pkgutil.iter_modules(command_path):
+            module = importlib.import_module(f"commands.{module_name}")
+            for attr_name in dir(module):
+                attr = getattr(module, attr_name)
+                if callable(attr) and attr_name.startswith('cmd_'):
+                    cmd_name = attr_name[4:]  # Remove cmd_
+                    self.commands[cmd_name] = attr
+                    print(f"Loaded command: {cmd_name} from {module_name}")
+
     def restore_focus(self):
         """
         Brings terminal window back to top and puts it in focus.
@@ -91,7 +109,7 @@ class Console(QMainWindow):
 
         if cmd in self.commands:
             func = self.commands[cmd]
-            func(args)
+            func(self, args)
 
         elif cmd in self.links.keys():
             link = self.links[cmd]
@@ -208,21 +226,6 @@ class Console(QMainWindow):
         except:
             self.output("something went wrong", "red")
 
-    # TODO - make this safe
-    def cmd_math(self, cmd):
-        """Evaluates arithmetic expressions
-        NOTE: MAKE SAFER LATER?"""
-        exp = ''.join(cmd)
-        if "^" in exp:
-            exp = exp.replace("^", "**")
-        valid = "1234567890-+/*.()"
-        for i in exp:
-            if i not in valid:
-                self.output("only numbers and operators allowed", "red")
-                return
-
-        self.output(str(eval(exp)), "aqua")
-
     def cmd_meta(self, cmd):
         try:
             match cmd[0]:
@@ -260,16 +263,6 @@ class Console(QMainWindow):
         except:
             self.output("you messed something up", "red")
 
-    def cmd_where(self, cmd):
-        pt = pyautogui.position()
-        self.output(f"({pt.x}, {pt.y})", "green")
-
-    def cmd_search(self, cmd):
-        query = ' '.join(cmd)
-        webbrowser.open(f"https://www.google.com/search?q={query}")
-        self.output("success", "green")
-
-
     def cmd_help(self, cmd):
         if cmd:
             pass
@@ -277,11 +270,16 @@ class Console(QMainWindow):
             text = "\n".join(self.commands)
             self.output(f"Raphael's Console v{self.version} | Built-in commands:\n{text}", "aqua")
 
-    def cmd_sys(self, cmd):
-        """Allows editing of system variables like
-        volume, brightness, wifi, etc.
-        Primarily used for automation, I guess
-        """
+    # TODO - make this
+    def cmd_open_url(self, cmd):
+        pass
+
+    # TODO - make this
+    def cmd_open_file(self, cmd):
+        pass
+
+    # TODO - make this
+    def cmd_open_app(self, cmd):
         pass
 
     def output(self, text, color):
