@@ -137,9 +137,9 @@ class Console(QMainWindow):
 
     def changeBackground(self, color):
         """Changes background color."""
-        r, g, b, a = color
+        r, g, b = color
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(int(r), int(g), int(b), int(a)))
+        palette.setColor(QPalette.Window, QColor(int(r), int(g), int(b)))
         self.setPalette(palette)
 
     def output(self, text, color):
@@ -175,26 +175,30 @@ class Console(QMainWindow):
         QTimer.singleShot(100, self.restore_focus)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
-            if self.line_edit.text() == "":
-                return
-            self.run_console_line()
-        elif event.key() == Qt.Key.Key_Escape:
-            self.close()
-        elif event.key() == Qt.Key.Key_Up:
-            # add one to history pos and then clamp
-            self.history_pos = min(self.history_pos + 1, len(self.history))
-            if self.history_pos == 0:
-                self.line_edit.clear()
-            else:
-                self.line_edit.setText(self.history[-self.history_pos])
-        elif event.key() == Qt.Key.Key_Down:
-            self.history_pos = max(self.history_pos-1, 0)
+        if self.isVisible():
+            if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_QuoteLeft:
+                if self.line_edit.text() == "":
+                    return
+                self.run_console_line()
+            elif event.key() == Qt.Key.Key_Escape:
+                self.setVisible(not self.isVisible())
+            elif event.key() == Qt.Key.Key_Up:
+                # add one to history pos and then clamp
+                self.history_pos = min(self.history_pos + 1, len(self.history))
+                if self.history_pos == 0:
+                    self.line_edit.clear()
+                else:
+                    self.line_edit.setText(self.history[-self.history_pos])
+            elif event.key() == Qt.Key.Key_Down:
+                self.history_pos = max(self.history_pos-1, 0)
 
-            if self.history_pos == 0:
-                self.line_edit.clear()
-            else:
-                self.line_edit.setText(self.history[-self.history_pos])
+                if self.history_pos == 0:
+                    self.line_edit.clear()
+                else:
+                    self.line_edit.setText(self.history[-self.history_pos])
+        elif event.key() == Qt.Key.Key_QuoteLeft:
+
+            self.setVisible(not self.isVisible())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -20,7 +20,7 @@ def cmd_meta(console, args):
                     console.setWindowOpacity(float(args[1]))
             # change background color
             case "bg":
-                console.changeBackground(list(map(float, args[1:])))
+                console.changeBackground(map(float, args[1:]))
             # change text color
             case "text":
                 if len(args) == 1:
@@ -44,8 +44,9 @@ def cmd_meta(console, args):
         console.output("success", "green")
     except IndexError:
         console.output("incomplete syntax", "red")
-    except:
-        console.output("you messed something up", "red")
+    except Exception as e:
+        console.log(e)
+        console.output("something went wrong", "red")
 
 
 def cmd_help(console, args):
@@ -62,7 +63,8 @@ def cmd_help(console, args):
         text = []
         for source in console.command_sources:
             text.append(f"----{source} - {console.command_sources[source][0]}:----")
-            text += [i for i in console.command_sources[source][1:]]
+            for i in range(0, len(console.command_sources[source][1:]), 4):
+                text.append('    '.join(console.command_sources[source][1:][i:i+4]))
         text = "\n".join(text)
         console.output(f"Raphael's Console v{console.version} | Built-in Commands\n{text}", "aqua")
 
@@ -98,7 +100,7 @@ def cmd_devhelp(console, args):
 
 
 def cmd_clear(console, args):
-    """Clears console.
+    """Clears the console.
     Format: clear"""
     console.history = []
     console.output("console cleared", "green")
@@ -117,3 +119,9 @@ def cmd_mode(console, args):
     except Exception as e:
         console.log(e)
         console.output("something went wrong", "red")
+
+
+def cmd_quit(console, args):
+    """Quits the console.
+    Format: quit"""
+    console.close()

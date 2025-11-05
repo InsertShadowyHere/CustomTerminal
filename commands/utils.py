@@ -101,6 +101,12 @@ def cmd_todo(console, args):
                     with open("resources/todo", "w") as f:
                         f.write("")
                     console.output("Cleared to-do list", "green")
+            case "clear":
+                with open("resources/todo", "w") as f:
+                    f.write("")
+                console.output("Cleared to-do list", "green")
+
+
     except IndexError:
         console.output("invalid syntax", "red")
     except FileNotFoundError:

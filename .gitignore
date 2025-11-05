@@ -6,3 +6,5 @@ __pycache__/
 resources/imbored.txt
 resources/todo
 resources/log
+build/
+dist/
