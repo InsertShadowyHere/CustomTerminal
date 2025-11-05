@@ -12,6 +12,9 @@ where
 import pyautogui
 import webbrowser
 from random import randint
+import json
+from pint import UnitRegistry
+
 
 def cmd_where(console, args):
     """Outputs current mouse position, relative to top left of screen.
@@ -23,7 +26,7 @@ def cmd_where(console, args):
 # TODO - make this safe
 def cmd_math(console, args):
     """Evaluates arithmetic expressions
-    NOTE: MAKE SAFER LATER?"""
+    FORMAT: math [args]     NOTE: MAKE SAFER LATER?"""
     exp = ''.join(args)
     if "^" in exp:
         exp = exp.replace("^", "**")
@@ -37,6 +40,8 @@ def cmd_math(console, args):
 
 
 def cmd_search(console, args):
+    """Searches in the primary web browser.
+    FORMAT: search [term]"""
     query = ' '.join(args)
     webbrowser.open(f"https://www.google.com/search?q={query}")
     console.output("success", "green")
@@ -142,6 +147,27 @@ def cmd_monies(console, args):
         console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val*rate} {curr_2}", "blue")
     except IndexError:
         console.output("invalid syntax", "red")
+    except Exception as e:
+        console.log(e)
+        console.output("something went wrong", "red")
+
+
+def cmd_unit(console, args):
+    """Converts between various units.
+    FORMAT: unit [count] [starting_unit] [ending_unit]"""
+    try:
+        ureg = UnitRegistry()
+        val = 1
+        x = 0
+        if len(args) == 3:
+            val = float(args[0])
+            x = 1
+        unit = val * ureg(args[0+x])
+        x = round(unit.to(ureg(args[1+x])), 2)
+
+        console.output(f"Converted {val} {args[1]} to {x}.", "aqua")
+    except IndexError:
+        console.output("missing arguments")
     except Exception as e:
         console.log(e)
         console.output("something went wrong", "red")

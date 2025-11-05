@@ -4,3 +4,5 @@
 [2025-11-05 11:52:46.875304] 'str' object has no attribute 'is_digit'
 [2025-11-05 11:53:03.833346] 'str' object has no attribute 'is_digit'
 [2025-11-05 11:53:16.220675] 'str' object has no attribute 'is_digit'
+[2025-11-05 13:55:58.215990] can't multiply sequence by non-int of type 'float'
+[2025-11-05 14:25:34.833141] Cannot convert from 'turn' (dimensionless) to 'rads' ([length] ** 2 / [time] ** 2)
