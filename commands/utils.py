@@ -97,6 +97,8 @@ def cmd_todo(console, args):
                     console.output("Cleared to-do list", "green")
     except IndexError:
         console.output("invalid syntax", "red")
+    except FileNotFoundError:
+        console.output("To-do list is empty, add an item", "aqua")
     except Exception as e:
         console.log(e)
 
