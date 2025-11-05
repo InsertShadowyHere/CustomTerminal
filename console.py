@@ -61,18 +61,7 @@ class Console(QMainWindow):
         #self.output_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
 
-        self.output_scroll = QScrollArea()
-        self.output_scroll.setWidgetResizable(True)
-        self.output_scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
-        self.output_scroll.setMinimumHeight(25)
-        self.output_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.output_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.output_scroll.setStyleSheet("background-color: black; border: 0px;")
-        self.output_scroll.setWidget(self.output_area)
-
-        self.output_scroll.setMaximumHeight(300)
-
-        self.layout.addWidget(self.output_scroll)
+        self.layout.addWidget(self.output_area)
 
         self.line_edit = QLineEdit()
         self.line_edit.setStyleSheet("""QLineEdit {

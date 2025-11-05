@@ -95,10 +95,10 @@ def cmd_roll(console, args):
                 sides = int(arg)
 
         if concise:
-            console.output(f"{randint(1, sides)}", "blue")
+            console.output(f"{randint(1, sides)}", "aqua")
             return
         else:
-            console.output(f"You rolled a {randint(1, sides)}", "blue")
+            console.output(f"You rolled a {randint(1, sides)}", "aqua")
     except ValueError:
         console.output("number of sides must be a number", "red")
     except Exception as e:

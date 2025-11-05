@@ -83,10 +83,15 @@ def cmd_copy(console, args):
 
 def cmd_devhelp(console, args):
     """Returns information to help new developers (prints devhelp.txt contents lol)
-    Format: devhelp"""
+    Format: devhelp [page]"""
     try:
+        page = 0
+        if args:
+            page = int(args[0])-1
         with open("resources/devhelp.txt", "r") as f:
-            info = f.read()
+            info = f.read().split("PAGE")
+            text = f"""Are you looking to develop with ConsoleC? Here are the dev notes!\nUse devhelp [page] to go to the next page. There are {len(info)} pages.\n"""
+            info = text + info[page].strip()
         console.output(info, "aqua")
     except FileNotFoundError:
         console.output("the devhelp file was deleted! :(", "red")

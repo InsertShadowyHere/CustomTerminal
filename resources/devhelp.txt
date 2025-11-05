@@ -1,10 +1,6 @@
-Are you looking to develop with ConsoleC?
-
---------Section 1: Links--------
+--------Page 1: Links--------
 I'm basically programming my own scripting language at this point 😭
-
-
---------Section 2: Custom Commands--------
+PAGE--------Page 2: Custom Commands--------
 To create custom commands, you should create one or multiple files with functions inside.
 Each function should be named cmd_[your command name] (for example, cmd_test for a test command).
 It should take two parameters: console and args.

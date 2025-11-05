@@ -9,7 +9,7 @@ remind
 
 """
 import keyboard
-import mouse
+#import mouse
 
 
 # TODO - establish more types of links
@@ -55,38 +55,38 @@ def cmd_link(console, args):
         console.output("invalid syntax", "red")
 
 # TODO - make this work
-def cmd_macro(console, args):
-        try:
-            if args[0] == "record":
-                name = args[1]
-                mouse_events = []
-
-                console.hide()
-                console.clearFocus()
-
-                keyboard.start_recording()
-                mouse.hook(mouse_events.append)
-                keyboard.wait('F9')
-                keyboard_events = keyboard.stop_recording()
-                mouse.unhook(mouse_events.append)
-                console.show()
-
-                console.macros[name] = keyboard_events, mouse_events
-
-            elif args[0] == "list":
-                stuff = [name for name in console.macros]
-                print('hi')
-                console.output("\n".join(stuff), "aqua")
-
-            elif args[0] == "remove" or args[0] == "delete":
-                if args[1] in console.macros:
-                    del console.macros[args[1]]
-                console.output(f"deleted {args[1]}", "green")
-
-            else:
-                console.output("invalid syntax", "red")
-
-        except IndexError:
-            console.output(f"incomplete syntax", "red")
-        except:
-            console.output("something went wrong", "red")
+# def cmd_macro(console, args):
+#         try:
+#             if args[0] == "record":
+#                 name = args[1]
+#                 mouse_events = []
+#
+#                 console.hide()
+#                 console.clearFocus()
+#
+#                 keyboard.start_recording()
+#                 mouse.hook(mouse_events.append)
+#                 keyboard.wait('F9')
+#                 keyboard_events = keyboard.stop_recording()
+#                 mouse.unhook(mouse_events.append)
+#                 console.show()
+#
+#                 console.macros[name] = keyboard_events, mouse_events
+#
+#             elif args[0] == "list":
+#                 stuff = [name for name in console.macros]
+#                 print('hi')
+#                 console.output("\n".join(stuff), "aqua")
+#
+#             elif args[0] == "remove" or args[0] == "delete":
+#                 if args[1] in console.macros:
+#                     del console.macros[args[1]]
+#                 console.output(f"deleted {args[1]}", "green")
+#
+#             else:
+#                 console.output("invalid syntax", "red")
+#
+#         except IndexError:
+#             console.output(f"incomplete syntax", "red")
+#         except:
+#             console.output("something went wrong", "red")
