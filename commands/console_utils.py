@@ -76,7 +76,7 @@ def cmd_about(console, args):
 def cmd_copy(console, args):
     """Copies last console output to clipboard.
     Format: copy"""
-    text = console.output_label.text()
+    text = console.output_area.text()
     copy(text.strip())
     console.output("copied to clipboard", "green")
 
@@ -90,3 +90,10 @@ def cmd_devhelp(console, args):
         console.output(info, "aqua")
     except FileNotFoundError:
         console.output("the devhelp file was deleted! :(", "red")
+
+
+def cmd_clear(console, args):
+    """Clears console.
+    Format: clear"""
+    console.history = []
+    console.output("console cleared", "green")

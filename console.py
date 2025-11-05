@@ -1,9 +1,9 @@
-"""This file contains the """
+"""Console code"""
 import importlib
 import pkgutil
 import sys
 import webbrowser
-from datetime import time
+from datetime import datetime
 
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
@@ -31,7 +31,7 @@ class Console(QMainWindow):
         self.outputted = False
 
         self.history_pos = 0
-        self.past_events = []
+        self.history = []
         self.output_log = ""
 
         # PySide6 window setup
@@ -54,9 +54,25 @@ class Console(QMainWindow):
         self.past_events_label.setStyleSheet("color: white; font-size: 18px")
         self.layout.addWidget(self.past_events_label)
 
-        self.output_label = QLabel()
-        self.output_label.setStyleSheet("color: white; font-size: 18px")
-        self.layout.addWidget(self.output_label)
+        self.output_area = QLabel()
+        self.output_area.setWordWrap(True)
+        self.output_area.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.output_area.setStyleSheet("color: white; font-size: 18px; background-color: black; border: 0px;")
+        #self.output_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+
+
+        self.output_scroll = QScrollArea()
+        self.output_scroll.setWidgetResizable(True)
+        self.output_scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
+        self.output_scroll.setMinimumHeight(25)
+        self.output_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.output_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.output_scroll.setStyleSheet("background-color: black; border: 0px;")
+        self.output_scroll.setWidget(self.output_area)
+
+        self.output_scroll.setMaximumHeight(300)
+
+        self.layout.addWidget(self.output_scroll)
 
         self.line_edit = QLineEdit()
         self.line_edit.setStyleSheet("""QLineEdit {
@@ -131,27 +147,33 @@ class Console(QMainWindow):
             self.output("command not found", "red")
 
     def changeBackground(self, color):
+        """Changes background color."""
         r, g, b, a = color
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(int(r), int(g), int(b), int(a)))
         self.setPalette(palette)
 
     def output(self, text, color):
+        """Sets the console output text."""
         self.outputted = True
-        self.output_label.setText(text)
-        self.output_label.setStyleSheet(f"color: {color}; font-size: 18px")
+        self.output_area.setText(text)
+        self.output_area.setStyleSheet(f"color: {color}; font-size: 18px; background-color: black; border: 0px;")
 
     def log(self, text):
+        """Saves error logs in logs.txt"""
         self.log_num += 1
         with open(f"resources/log", "a") as f:
-            f.write(f"[{time()}] {text}\n")
+            f.write(f"[{datetime.now()}] {text}\n")
 
-    def run_terminal_line(self):
+    def run_console_line(self):
+        """Handles processing of entering a line"""
         command = self.line_edit.text()
         self.execute(command)
-        self.past_events.append(command)
-        self.past_events_label.setText('\n'.join(self.past_events))
-        self.line_edit.setText("")
+        if len(self.history) > 19:
+            self.history.pop(0)
+        self.history.append(command)
+        self.past_events_label.setText('\n'.join(self.history))
+        self.line_edit.clear()
         self.history_pos = 0
         QTimer.singleShot(100, self.restore_focus)
 
@@ -159,23 +181,23 @@ class Console(QMainWindow):
         if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
             if self.line_edit.text() == "":
                 return
-            self.run_terminal_line()
+            self.run_console_line()
         elif event.key() == Qt.Key.Key_Escape:
             self.close()
         elif event.key() == Qt.Key.Key_Up:
             # add one to history pos and then clamp
-            self.history_pos = min(self.history_pos+1, len(self.past_events))
+            self.history_pos = min(self.history_pos + 1, len(self.history))
             if self.history_pos == 0:
                 self.line_edit.clear()
             else:
-                self.line_edit.setText(self.past_events[-self.history_pos])
+                self.line_edit.setText(self.history[-self.history_pos])
         elif event.key() == Qt.Key.Key_Down:
             self.history_pos = max(self.history_pos-1, 0)
 
             if self.history_pos == 0:
                 self.line_edit.clear()
             else:
-                self.line_edit.setText(self.past_events[-self.history_pos])
+                self.line_edit.setText(self.history[-self.history_pos])
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
