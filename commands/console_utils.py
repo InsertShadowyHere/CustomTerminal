@@ -102,3 +102,18 @@ def cmd_clear(console, args):
     Format: clear"""
     console.history = []
     console.output("console cleared", "green")
+
+
+def cmd_mode(console, args):
+    """Sets the console to a mode, treating it as if the command was prefixed with the mode.
+    For example, mode math means that the next time 5+5 is written, it returns 10 and not an error.
+    This command can save subsettings too, so mode link add works fine. Use exit to exit the mode.
+    FORMAT: mode [command]"""
+    try:
+        console.mode = ' '.join(args) + " "
+        console.output(f"set mode to {' '.join(args)}", "green")
+    except IndexError:
+        console.output("invalid parameters", "red")
+    except Exception as e:
+        console.log(e)
+        console.output("something went wrong", "red")

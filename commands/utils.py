@@ -27,16 +27,22 @@ def cmd_where(console, args):
 def cmd_math(console, args):
     """Evaluates arithmetic expressions
     FORMAT: math [args]     NOTE: MAKE SAFER LATER?"""
-    exp = ''.join(args)
-    if "^" in exp:
-        exp = exp.replace("^", "**")
-    valid = "1234567890-+/*.()"
-    for i in exp:
-        if i not in valid:
-            console.output("only numbers and operators allowed", "red")
-            return
+    try:
+        exp = ''.join(args)
+        if "^" in exp:
+            exp = exp.replace("^", "**")
+        valid = "1234567890-+/*.()"
+        for i in exp:
+            if i not in valid:
+                console.output("only numbers and operators allowed", "red")
+                return
 
-    console.output(str(eval(exp)), "aqua")
+        console.output(str(eval(exp)), "aqua")
+    except SyntaxError:
+        console.output("invalid syntax", "red")
+    except Exception as e:
+        console.log(e)
+        console.output("something went wrong", "red")
 
 
 def cmd_search(console, args):

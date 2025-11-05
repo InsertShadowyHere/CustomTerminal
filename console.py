@@ -24,6 +24,7 @@ class Console(QMainWindow):
         self.load_commands()
         self.links = {}
         self.macros = {}
+        self.mode = None
 
         self.log_num = 0
 
@@ -156,7 +157,15 @@ class Console(QMainWindow):
     def run_console_line(self):
         """Handles processing of entering a line"""
         command = self.line_edit.text()
-        self.execute(command)
+        if self.mode:
+            if command == "exit":
+                self.mode = None
+                self.output(f"exiting mode {str(self.mode)}", "green")
+            else:
+                command = self.mode+command
+                self.execute(command)
+        else:
+            self.execute(command)
         if len(self.history) > 19:
             self.history.pop(0)
         self.history.append(command)
