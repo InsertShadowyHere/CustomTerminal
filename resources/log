@@ -1,0 +1,8 @@
+[00:00:00] 'PySide6.QtWidgets.QLabel.setText' called with wrong argument types:
+  PySide6.QtWidgets.QLabel.setText(int)
+Supported signatures:
+  PySide6.QtWidgets.QLabel.setText(arg__1: str, /)
+[00:00:00] 'PySide6.QtWidgets.QLabel.setText' called with wrong argument types:
+  PySide6.QtWidgets.QLabel.setText(int)
+Supported signatures:
+  PySide6.QtWidgets.QLabel.setText(arg__1: str, /)

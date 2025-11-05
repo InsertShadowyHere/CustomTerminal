@@ -1,17 +1,14 @@
 """This file contains the """
 import importlib
 import pkgutil
-import subprocess
 import sys
-import threading
 import webbrowser
+from datetime import time
 
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import Qt
-import keyboard
 from PySide6.QtCore import QTimer
-import mouse
 
 from commands import __path__ as command_path
 
@@ -22,20 +19,20 @@ class Console(QMainWindow):
 
         # Terminal version and command dictionary
         self.version = 0.1
-        self.commands = {"link": self.cmd_link,
-                         "macro": self.cmd_macro,}
+        self.commands = {}
         self.command_sources = {}
         self.load_commands()
         self.links = {}
         self.macros = {}
 
         self.todo = []
+        self.log_num = 0
 
         self.outputted = False
 
         self.history_pos = 0
         self.past_events = []
-        self.log = ""
+        self.output_log = ""
 
         # PySide6 window setup
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
@@ -120,12 +117,12 @@ class Console(QMainWindow):
                 webbrowser.open(link[0])
                 self.output(f"opening link {link[0]}", "green")
 
-        elif cmd[0] in self.macros:
+        elif cmd in self.macros:
             print('macroing!')
             self.clearFocus()
             self.hide()
             keyboard_events, mouse_events = self.macros[cmd]
-            play_macro(keyboard_events, mouse_events)
+            #play_macro(keyboard_events, mouse_events)
             self.setFocus()
             self.show()
             self.output("macro completed", "green")
@@ -144,6 +141,11 @@ class Console(QMainWindow):
         self.output_label.setText(text)
         self.output_label.setStyleSheet(f"color: {color}; font-size: 18px")
 
+    def log(self, text):
+        self.log_num += 1
+        with open(f"resources/log", "a") as f:
+            f.write(f"[{time()}] {text}\n")
+
     def run_terminal_line(self):
         command = self.line_edit.text()
         self.execute(command)
@@ -155,45 +157,25 @@ class Console(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
+            if self.line_edit.text() == "":
+                return
             self.run_terminal_line()
         elif event.key() == Qt.Key.Key_Escape:
             self.close()
         elif event.key() == Qt.Key.Key_Up:
             # add one to history pos and then clamp
-            self.history_pos += 1
-            if self.history_pos > len(self.past_events):
-                self.history_pos = len(self.past_events)
-
+            self.history_pos = min(self.history_pos+1, len(self.past_events))
             if self.history_pos == 0:
                 self.line_edit.clear()
             else:
                 self.line_edit.setText(self.past_events[-self.history_pos])
         elif event.key() == Qt.Key.Key_Down:
-            self.history_pos -= 1
-            if self.history_pos < 0:
-                self.history_pos = 0
+            self.history_pos = max(self.history_pos-1, 0)
 
             if self.history_pos == 0:
                 self.line_edit.clear()
             else:
                 self.line_edit.setText(self.past_events[-self.history_pos])
-
-
-def play_macro(k_events, m_events):
-    def play_mouse():
-        mouse.play(m_events)
-
-    def play_keyboard():
-        keyboard.play(k_events)
-
-    # Run both in parallel so timing feels natural
-    t1 = threading.Thread(target=play_mouse)
-    t2 = threading.Thread(target=play_keyboard)
-    t1.start()
-    t2.start()
-    t1.join()
-    t2.join()
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

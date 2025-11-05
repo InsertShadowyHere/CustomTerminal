@@ -15,5 +15,6 @@ The standard currently used is red for error, green for success, and blue for in
 Also, please leave in a docstring for each module and function!
 For functions, format it like "description\nFormat: command [args]", and for modules, just keep in mind
 that the first line will appear in the help command as the module description.
+Error handling is done with console.log(message). This is helpful, I strongly recommend doing it.
 
 Good luck!
