@@ -58,8 +58,13 @@ def cmd_todo(console, args):
     FORMAT: todo [add/remove] [item/index]"""
     try:
         if not args:
-            text = [f"{n+1}. {item}" for n, item in enumerate(console.todo)]
-            console.output('\n'.join(text), "aqua")
+            with open("resources/todo", "r") as f:
+                items = f.read().splitlines()
+                text = '\n'.join(f"{n+1}. {item}" for n, item in enumerate(items))
+            if text == "":
+                console.output("To-do list is empty, add an item", "aqua")
+                return
+            console.output(text, "aqua")
             return
 
         match args[0]:
@@ -68,13 +73,23 @@ def cmd_todo(console, args):
                     console.output("invalid syntax", "red")
                     return
                 item = " ".join(args[1:])
-                console.todo.append(item)
+                with open("resources/todo", "a") as f:
+                    f.write(item + "\n")
                 console.output(f"Added {item} to to-do list", "green")
 
             case "remove" | "delete":
-                index = int(args[1]) - 1
-                popped = console.todo.pop(index)
-                console.output(f"Removed {popped} from to-do list", "green")
+                if len(args) > 1:
+                    index = int(args[1]) - 1
+                    with open("resources/todo", "r") as f:
+                        todo = f.read().split('\n')
+                    popped = todo.pop(index)
+                    with open("resources/todo", "w") as f:
+                        f.write('\n'.join(todo))
+                    console.output(f"Removed {popped} from to-do list", "green")
+                else:
+                    with open("resources/todo", "w") as f:
+                        f.write("")
+                    console.output("Cleared to-do list", "green")
     except IndexError:
         console.output("invalid syntax", "red")
     except Exception as e:

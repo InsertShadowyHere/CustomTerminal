@@ -25,7 +25,6 @@ class Console(QMainWindow):
         self.links = {}
         self.macros = {}
 
-        self.todo = []
         self.log_num = 0
 
         self.outputted = False
