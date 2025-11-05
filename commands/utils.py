@@ -13,6 +13,8 @@ import pyautogui
 import webbrowser
 
 def cmd_where(console, args):
+    """Outputs current mouse position, relative to top left of screen.
+    FORMAT: where"""
     pt = pyautogui.position()
     console.output(f"({pt.x}, {pt.y})", "green")
 

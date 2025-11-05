@@ -6,6 +6,10 @@
 from pyperclip import copy
 
 def cmd_meta(console, args):
+    """Edits various console settings. Current settings include opacity (opacity),
+    background color (bg), and text color (text).
+    Format: meta [setting] [value]
+    """
     try:
         match args[0]:
             # change window opacity
@@ -44,13 +48,14 @@ def cmd_meta(console, args):
         console.output("you messed something up", "red")
 
 
-# TODO - add framework for individual command help texts
 def cmd_help(console, args):
+    """Displays a list of available commands or detailed info about a specific command.
+    Format: help [command_name] to return individual command info, or help to get all commands."""
     if args:
         cmd_name = args[0]
         if cmd_name in console.commands:
             func = console.commands[cmd_name]
-            console.output(f"{cmd_name}: {func.__doc__}", "aqua")
+            console.output(f"{cmd_name}:\n{func.__doc__}", "aqua")
         else:
             console.output("command not found", "red")
     else:
@@ -63,19 +68,22 @@ def cmd_help(console, args):
 
 
 def cmd_about(console, args):
-    """Displays information about the console application."""
+    """Displays information about the console.
+    Format: about"""
     console.output(f"ConsoleC version {console.version}; Developed by InsertShadowyHere", "aqua")
 
 
 def cmd_copy(console, args):
-    """Copies last output to clipboard."""
+    """Copies last console output to clipboard.
+    Format: copy"""
     text = console.output_label.text()
     copy(text.strip())
     console.output("copied to clipboard", "green")
 
 
 def cmd_devhelp(console, args):
-    """Returns various information for developers"""
+    """Returns information to help new developers (prints devhelp.txt contents lol)
+    Format: devhelp"""
     try:
         with open("resources/devhelp.txt", "r") as f:
             info = f.read()

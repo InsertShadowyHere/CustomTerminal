@@ -12,5 +12,8 @@ The console parameter is the console instance that called the command, and args 
 To give output, each function should run the console.output(message: str, color: str) function.
 The message is outputted by the console in the color given.
 The standard currently used is red for error, green for success, and blue for information/specific output.
+Also, please leave in a docstring for each module and function!
+For functions, format it like "description\nFormat: command [args]", and for modules, just keep in mind
+that the first line will appear in the help command as the module description.
 
 Good luck!

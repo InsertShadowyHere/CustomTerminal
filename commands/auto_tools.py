@@ -19,11 +19,6 @@ def cmd_open_url(console, args):
 
 
 # TODO - make this
-def cmd_open_file(console, args):
-    pass
-
-
-# TODO - make this
 def cmd_open_app(console, args):
     pass
 
@@ -35,5 +30,6 @@ def cmd_open_file(console, args):
 
 
 def cmd_run(console, args):
-    """Runs a script or application with its path."""
+    """Runs a script or application with its path.
+    FORMAT: run <path>"""
     pass

@@ -132,87 +132,6 @@ class Console(QMainWindow):
 
         if not self.outputted:
             self.output("command not found", "red")
-        QTimer.singleShot(100, self.restore_focus)
-
-    # TODO - establish more types of links
-    def cmd_link(self, cmd):
-        try:
-            if cmd[0] == "add":
-                user_cmd = cmd[cmd.index("-c") + 1]
-                link = cmd[cmd.index("-l") + 1]
-                if user_cmd in self.commands:
-                    self.output("command already exists", "red")
-                    return
-                link_type = "url"
-                if '-t' in cmd:
-                    link_type = cmd[cmd.index("-t") + 1]
-
-                if link_type == "url":
-                    if "www" not in link:
-                        link = "www." + link
-                    if "https" not in link:
-                        link = "https://" + link
-
-                    self.links[user_cmd] = (link, "url")
-                    self.output(f"link {user_cmd} to {link} added", "green")
-                elif link_type == "file":
-                    # TODO - test file validity
-                    self.links[user_cmd] = (link, "file")
-                    self.output(f"link {user_cmd} to {link} added", "green")
-
-
-            # Displays all available links
-            elif cmd[0] == "list":
-                stuff = [f"{key}: {value[0]}" for key, value in self.links.items()]
-                self.output("\n".join(stuff), "aqua")
-
-
-            # Remove a link
-            elif cmd[0] == "remove" or cmd[0] == "delete":
-                if cmd[1] in self.links:
-                    del self.links[cmd[1]]
-                self.output(f"deleted {cmd[1]}", "green")
-
-
-        except:
-            self.output("invalid syntax", "red")
-
-    # TODO - make this work
-    def cmd_macro(self, cmd):
-        try:
-            if cmd[0] == "record":
-                name = cmd[1]
-                mouse_events = []
-
-                self.hide()
-                self.clearFocus()
-
-                keyboard.start_recording()
-                mouse.hook(mouse_events.append)
-                keyboard.wait('F9')
-                keyboard_events = keyboard.stop_recording()
-                mouse.unhook(mouse_events.append)
-                self.show()
-
-                self.macros[name] = keyboard_events, mouse_events
-
-            elif cmd[0] == "list":
-                stuff = [name for name in self.macros]
-                print('hi')
-                self.output("\n".join(stuff), "aqua")
-
-            elif cmd[0] == "remove" or cmd[0] == "delete":
-                if cmd[1] in self.macros:
-                    del self.macros[cmd[1]]
-                self.output(f"deleted {cmd[1]}", "green")
-
-            else:
-                self.output("invalid syntax", "red")
-
-        except IndexError:
-            self.output(f"incomplete syntax", "red")
-        except:
-            self.output("something went wrong", "red")
 
     def changeBackground(self, color):
         r, g, b, a = color
@@ -232,6 +151,7 @@ class Console(QMainWindow):
         self.past_events_label.setText('\n'.join(self.past_events))
         self.line_edit.setText("")
         self.history_pos = 0
+        QTimer.singleShot(100, self.restore_focus)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Enter or event.key() == Qt.Key.Key_Return:
