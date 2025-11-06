@@ -13,8 +13,8 @@ def main():
     window = Console()
     window.hide()
 
-    # --- System Tray ---
-    tray = QSystemTrayIcon(QIcon("icon.png"), parent=app)
+    # ------- tray icon
+    tray = QSystemTrayIcon(QIcon("resources/icon.png"), parent=app)
     tray.setToolTip("Quick Console")
 
     menu = QMenu()
@@ -30,6 +30,7 @@ def main():
     toggle_action.triggered.connect(lambda: toggle(window))
     quit_action.triggered.connect(app.quit)
 
+    # ------- window toggling stuff
     # apparently you use this as a dict to get around pythons lambda assignment rules
     toggle_requested = {"state": False}
 
