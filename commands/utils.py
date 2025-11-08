@@ -16,6 +16,8 @@ import json
 from pint import UnitRegistry
 
 
+NAMES_FOR_REVOLUTIONS = []
+
 def cmd_where(console, args):
     """Outputs current mouse position, relative to top left of screen.
     FORMAT: where"""
@@ -28,6 +30,7 @@ def cmd_math(console, args):
     """Evaluates arithmetic expressions
     FORMAT: math [args]     NOTE: MAKE SAFER LATER?"""
     try:
+        print('hi')
         exp = ''.join(args)
         if "^" in exp:
             exp = exp.replace("^", "**")
@@ -40,9 +43,6 @@ def cmd_math(console, args):
         console.output(str(eval(exp)), "aqua")
     except SyntaxError:
         console.output("invalid syntax", "red")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
 
 
 def cmd_search(console, args):
@@ -113,8 +113,6 @@ def cmd_todo(console, args):
         console.output("To-do list is empty, add an item", "aqua")
     except ValueError:
         console.output("Index must be a number", "red")
-    except Exception as e:
-        console.log(e)
 
 
 def cmd_roll(console, args):
@@ -137,9 +135,6 @@ def cmd_roll(console, args):
             console.output(f"You rolled a {randint(1, sides)}", "aqua")
     except ValueError:
         console.output("number of sides must be a number", "red")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
 
 
 def cmd_flip(console, args):
@@ -163,9 +158,6 @@ def cmd_monies(console, args):
         console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val * rate} {curr_2}", "blue")
     except IndexError:
         console.output("invalid syntax", "red")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
 
 
 def cmd_unit(console, args):
@@ -178,6 +170,13 @@ def cmd_unit(console, args):
         if len(args) == 3:
             val = float(args[0])
             x = 1
+        # handle revolutions (its useful for physics hush)
+        if args[1] in NAMES_FOR_REVOLUTIONS:
+            args[1] = "radian"
+            val *= 2*3.14159
+        if args[2] in NAMES_FOR_REVOLUTIONS:
+            args[2] = "radian"
+            val /= 2*3.14159
         # noinspection PyCallingNonCallable
         unit = val * ureg(args[0 + x])
         # noinspection PyCallingNonCallable
@@ -186,6 +185,3 @@ def cmd_unit(console, args):
         console.output(f"Converted {val} {args[1]} to {x}.", "aqua")
     except IndexError:
         console.output("missing arguments")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")

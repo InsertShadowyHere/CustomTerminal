@@ -2,6 +2,7 @@
 import importlib
 import pkgutil
 import sys
+import traceback
 import webbrowser
 from datetime import datetime
 
@@ -21,10 +22,14 @@ class Console(QMainWindow):
         self.version = 0.1
         self.commands = {}
         self.command_sources = {}
-        self.load_commands()
         self.links = {}
         self.macros = {}
+        self.completer_words = None
         self.mode = None
+
+        self.load_commands()
+        # self.load_completer()
+        # print(self.completer_words)
 
         self.log_num = 0
 
@@ -69,6 +74,10 @@ class Console(QMainWindow):
                border: 0px solid #666;
                font-size: 18px;
            }""")
+        self.load_completer()
+        # choosing not to use the completer cus its really ugly
+        # self.completer = QCompleter(self.completer_words)
+        # self.line_edit.setCompleter(self.completer)
         self.layout.addWidget(self.line_edit)
 
         self.setCentralWidget(self.container)
@@ -77,17 +86,28 @@ class Console(QMainWindow):
 
     def load_commands(self):
         """Reads all files from commands/ and loads all cmd_ functions."""
+        self.commands = {}
+        self.command_sources = {}
         for _, module_name, _ in pkgutil.iter_modules(command_path):
-            module = importlib.import_module(f"commands.{module_name}")
+            full_name = f"commands.{module_name}"
+            # if module is already loaded, refresh it to allow for new updates to get sent in
+            if full_name in sys.modules:
+                module = importlib.reload(sys.modules[full_name])
+            else:
+                module = importlib.import_module(full_name)
+
             self.command_sources[module_name] = [module.__doc__.strip().splitlines()[0]]
 
             for attr_name in dir(module):
                 attr = getattr(module, attr_name)
                 if callable(attr) and attr_name.startswith('cmd_'):
-                    cmd_name = attr_name[4:]  # Remove cmd_
-                    self.commands[cmd_name] = attr
+                    cmd_name = attr_name[4:]  # remove cmd_
+                    self.commands[cmd_name] = logger(attr) # make sure the command is wrapped in a logger
                     self.command_sources[module_name].append(cmd_name)
                     print(f"Loaded command: {cmd_name} from {module_name}")
+
+    # def load_completer(self):
+    #     self.completer_words = list(self.commands.keys()) + list(self.links.keys()) + list(self.macros.keys())
 
     def restore_focus(self):
         """
@@ -107,6 +127,11 @@ class Console(QMainWindow):
             return
         cmd = cmd.split()
         args = cmd[1:]
+        next_cmd = None
+        if "&" in args:
+            next_cmd = ' '.join(args[args.index("&")+1:])
+            args = args[:args.index("&")]
+
         cmd = cmd[0]
 
         self.outputted = False
@@ -134,6 +159,9 @@ class Console(QMainWindow):
         if not self.outputted:
             self.output("command not found", "red")
 
+        if next_cmd:
+            self.execute(next_cmd)
+
     def changeBackground(self, color):
         """Changes background color."""
         r, g, b, a = color
@@ -147,11 +175,12 @@ class Console(QMainWindow):
         self.output_area.setText(text)
         self.output_area.setStyleSheet(f"color: {color}; font-size: 18px; background-color: black; border: 0px;")
 
-    def log(self, text):
+    def log(self, tb):
         """Saves error logs in logs.txt"""
         self.log_num += 1
         with open(f"resources/log", "a") as f:
-            f.write(f"[{datetime.now()}] {text}\n")
+            f.write(f"[{datetime.now()}] {tb}")
+        self.output("something went wrong (check the log!)", "red")
 
     def run_console_line(self):
         """Handles processing of entering a line"""
@@ -198,6 +227,17 @@ class Console(QMainWindow):
         elif event.key() == Qt.Key.Key_QuoteLeft:
             self.setVisible(not self.isVisible())
 
+def logger(cmd):
+    """Returns logger-decorated function."""
+    def wrapper(console, args):
+        try:
+            cmd(console, args)
+        except Exception as e:
+            full_tb = traceback.format_exc()
+            console.log(full_tb)
+    wrapper.__name__ = cmd.__name__
+    wrapper.__doc__ = cmd.__doc__
+    return wrapper
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

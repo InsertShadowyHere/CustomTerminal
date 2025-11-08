@@ -1,7 +1,7 @@
 import keyboard, sys, threading
 
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction, QIcon, QShortcut, QKeySequence
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 
 from console import Console
@@ -63,7 +63,6 @@ def toggle(window):
         window.show()
         window.raise_()
         window.activateWindow()
-
 
 if __name__ == "__main__":
     main()

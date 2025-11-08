@@ -13,46 +13,41 @@ remind
 
 # TODO - establish more types of links
 def cmd_link(console, args):
-    try:
-        if args[0] == "add":
-            user_cmd = args[args.index("-c") + 1]
-            link = args[args.index("-l") + 1]
-            if user_cmd in console.commands:
-                console.output("command already exists", "red")
-                return
-            link_type = "url"
-            if '-t' in args:
-                link_type = args[args.index("-t") + 1]
+    if args[0] == "add":
+        user_cmd = args[args.index("-c") + 1]
+        link = args[args.index("-l") + 1]
+        if user_cmd in console.commands:
+            console.output("command already exists", "red")
+            return
+        link_type = "url"
+        if '-t' in args:
+            link_type = args[args.index("-t") + 1]
 
-            if link_type == "url":
-                if "www" not in link:
-                    link = "www." + link
-                if "https" not in link:
-                    link = "https://" + link
+        if link_type == "url":
+            if "www" not in link:
+                link = "www." + link
+            if "https" not in link:
+                link = "https://" + link
 
-                console.links[user_cmd] = (link, "url")
-                console.output(f"link {user_cmd} to {link} added", "green")
-            elif link_type == "file":
-                # TODO - test file validity
-                console.links[user_cmd] = (link, "file")
-                console.output(f"link {user_cmd} to {link} added", "green")
-
-
-        # Displays all available links
-        elif args[0] == "list":
-            stuff = [f"{key}: {value[0]}" for key, value in console.links.items()]
-            console.output("\n".join(stuff), "aqua")
+            console.links[user_cmd] = (link, "url")
+            console.output(f"link {user_cmd} to {link} added", "green")
+        elif link_type == "file":
+            # TODO - test file validity
+            console.links[user_cmd] = (link, "file")
+            console.output(f"link {user_cmd} to {link} added", "green")
 
 
-        # Remove a link
-        elif args[0] == "remove" or args[0] == "delete":
-            if args[1] in console.links:
-                del console.links[args[1]]
-            console.output(f"deleted {args[1]}", "green")
+    # Displays all available links
+    elif args[0] == "list":
+        stuff = [f"{key}: {value[0]}" for key, value in console.links.items()]
+        console.output("\n".join(stuff), "aqua")
 
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
+
+    # Remove a link
+    elif args[0] == "remove" or args[0] == "delete":
+        if args[1] in console.links:
+            del console.links[args[1]]
+        console.output(f"deleted {args[1]}", "green")
 
 # TODO - make this work
 # def cmd_macro(console, args):

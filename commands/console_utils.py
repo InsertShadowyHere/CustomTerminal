@@ -45,9 +45,6 @@ def cmd_meta(console, args):
         console.output("success", "green")
     except IndexError:
         console.output("incomplete syntax", "red")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
 
 
 def cmd_help(console, args):
@@ -117,12 +114,16 @@ def cmd_mode(console, args):
         console.output(f"set mode to {' '.join(args)}", "green")
     except IndexError:
         console.output("invalid parameters", "red")
-    except Exception as e:
-        console.log(e)
-        console.output("something went wrong", "red")
 
 
 def cmd_quit(console, args):
     """Quits the console.
     Format: quit"""
     console.close()
+
+
+def cmd_update(console, args):
+    """Updates the command list based on the files in commands/
+    Format: update           NOTE: probably dev only"""
+    console.load_commands()
+    console.output("Commands loaded!", "green")
