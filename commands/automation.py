@@ -8,9 +8,8 @@ stopwatch
 remind
 
 """
-import keyboard
-#import mouse
-
+# import keyboard
+# import mouse
 
 # TODO - establish more types of links
 def cmd_link(console, args):
@@ -51,8 +50,9 @@ def cmd_link(console, args):
                 del console.links[args[1]]
             console.output(f"deleted {args[1]}", "green")
 
-    except:
-        console.output("invalid syntax", "red")
+    except Exception as e:
+        console.log(e)
+        console.output("something went wrong", "red")
 
 # TODO - make this work
 # def cmd_macro(console, args):

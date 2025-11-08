@@ -43,7 +43,7 @@ class Console(QMainWindow):
         self.setWindowTitle("Terminal")
 
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(0, 0, 0, 127))  # 127/255 = ~50%
+        palette.setColor(QPalette.ColorRole.Window, QColor(0, 0, 0, 127))  # 127/255 = ~50%
         self.setPalette(palette)
 
         self.container = QWidget()
@@ -58,8 +58,7 @@ class Console(QMainWindow):
         self.output_area.setWordWrap(True)
         self.output_area.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.output_area.setStyleSheet("color: white; font-size: 18px; background-color: black; border: 0px;")
-        #self.output_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-
+        # self.output_area.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
 
         self.layout.addWidget(self.output_area)
 
@@ -127,7 +126,7 @@ class Console(QMainWindow):
             self.clearFocus()
             self.hide()
             keyboard_events, mouse_events = self.macros[cmd]
-            #play_macro(keyboard_events, mouse_events)
+            # play_macro(keyboard_events, mouse_events)
             self.setFocus()
             self.show()
             self.output("macro completed", "green")
@@ -137,9 +136,9 @@ class Console(QMainWindow):
 
     def changeBackground(self, color):
         """Changes background color."""
-        r, g, b = color
+        r, g, b, a = color
         palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(int(r), int(g), int(b)))
+        palette.setColor(QPalette.ColorRole.Window, QColor(int(r), int(g), int(b)))
         self.setPalette(palette)
 
     def output(self, text, color):
@@ -162,7 +161,7 @@ class Console(QMainWindow):
                 self.mode = None
                 self.output(f"exiting mode {str(self.mode)}", "green")
             else:
-                command = self.mode+command
+                command = self.mode + command
                 self.execute(command)
         else:
             self.execute(command)
@@ -190,15 +189,15 @@ class Console(QMainWindow):
                 else:
                     self.line_edit.setText(self.history[-self.history_pos])
             elif event.key() == Qt.Key.Key_Down:
-                self.history_pos = max(self.history_pos-1, 0)
+                self.history_pos = max(self.history_pos - 1, 0)
 
                 if self.history_pos == 0:
                     self.line_edit.clear()
                 else:
                     self.line_edit.setText(self.history[-self.history_pos])
         elif event.key() == Qt.Key.Key_QuoteLeft:
-
             self.setVisible(not self.isVisible())
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

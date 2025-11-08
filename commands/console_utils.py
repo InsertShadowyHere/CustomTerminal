@@ -5,6 +5,7 @@
 
 from pyperclip import copy
 
+
 def cmd_meta(console, args):
     """Edits various console settings. Current settings include opacity (opacity),
     background color (bg), and text color (text).
@@ -64,7 +65,7 @@ def cmd_help(console, args):
         for source in console.command_sources:
             text.append(f"----{source} - {console.command_sources[source][0]}:----")
             for i in range(0, len(console.command_sources[source][1:]), 4):
-                text.append('    '.join(console.command_sources[source][1:][i:i+4]))
+                text.append('    '.join(console.command_sources[source][1:][i:i + 4]))
         text = "\n".join(text)
         console.output(f"Raphael's Console v{console.version} | Built-in Commands\n{text}", "aqua")
 
@@ -89,7 +90,7 @@ def cmd_devhelp(console, args):
     try:
         page = 0
         if args:
-            page = int(args[0])-1
+            page = int(args[0]) - 1
         with open("resources/devhelp.txt", "r") as f:
             info = f.read().split("PAGE")
             text = f"""Are you looking to develop with ConsoleC? Here are the dev notes!\nUse devhelp [page] to go to the next page. There are {len(info)} pages.\n"""

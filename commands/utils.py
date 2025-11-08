@@ -71,7 +71,7 @@ def cmd_todo(console, args):
         if not args:
             with open("resources/todo", "r") as f:
                 items = f.read().splitlines()
-                text = '\n'.join(f"{n+1}. {item}" for n, item in enumerate(items))
+                text = '\n'.join(f"{n + 1}. {item}" for n, item in enumerate(items))
             if text == "":
                 console.output("To-do list is empty, add an item", "aqua")
                 return
@@ -80,8 +80,8 @@ def cmd_todo(console, args):
 
         match args[0]:
             case "add":
-                if not args[1:]:
-                    console.output("invalid syntax", "red")
+                if len(args) == 1:
+                    console.output("no item specified", "red")
                     return
                 item = " ".join(args[1:])
                 with open("resources/todo", "a") as f:
@@ -92,7 +92,7 @@ def cmd_todo(console, args):
                 if len(args) > 1:
                     index = int(args[1]) - 1
                     with open("resources/todo", "r") as f:
-                        todo = f.read().split('\n')
+                        todo = f.readlines()
                     popped = todo.pop(index)
                     with open("resources/todo", "w") as f:
                         f.write('\n'.join(todo))
@@ -111,6 +111,8 @@ def cmd_todo(console, args):
         console.output("invalid syntax", "red")
     except FileNotFoundError:
         console.output("To-do list is empty, add an item", "aqua")
+    except ValueError:
+        console.output("Index must be a number", "red")
     except Exception as e:
         console.log(e)
 
@@ -158,7 +160,7 @@ def cmd_monies(console, args):
         print(curr_1)
         print(curr_2)
         rate = 1
-        console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val*rate} {curr_2}", "blue")
+        console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val * rate} {curr_2}", "blue")
     except IndexError:
         console.output("invalid syntax", "red")
     except Exception as e:
@@ -176,8 +178,10 @@ def cmd_unit(console, args):
         if len(args) == 3:
             val = float(args[0])
             x = 1
-        unit = val * ureg(args[0+x])
-        x = round(unit.to(ureg(args[1+x])), 2)
+        # noinspection PyCallingNonCallable
+        unit = val * ureg(args[0 + x])
+        # noinspection PyCallingNonCallable
+        x = round(unit.to(ureg(args[1 + x])), 2)
 
         console.output(f"Converted {val} {args[1]} to {x}.", "aqua")
     except IndexError:
