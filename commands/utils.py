@@ -17,7 +17,9 @@ from asteval import Interpreter
 from pint import UnitRegistry
 from PIL import ImageGrab
 from datetime import datetime
+from PyDictionary import PyDictionary
 
+dictionary = PyDictionary()
 NAMES_FOR_REVOLUTIONS = []
 with open('resources/paths', 'r') as f:
     screenshots_path = f.readlines()[0]
@@ -197,8 +199,33 @@ def cmd_unit(console, args):
 def cmd_screenshot(console, args):
     """Takes a screenshot of the current screen.
     FORMAT: screenshot"""
-    console.disappear()
+    reappear_later = False
+    if console.isVisible():
+        console.disappear()
+        reappear_later = True
     ss = ImageGrab.grab()
     ss.save(f"{screenshots_path}screenshot_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png")
-    console.reappear()
+    if reappear_later:
+        console.reappear()
     console.output("Screenshot saved!", "green")
+
+
+# TODO - make work
+def cmd_define(console, args):
+    """Define a word. BROKEN!!!!!!
+    FORMAT: define [word] (-s)ynonyms (-a)ntonyms"""
+    antonyms = False
+    synonyms = False
+    if "-a" in args:
+        antonyms = True
+        args.remove("-a")
+    if "-s" in args:
+        synonyms = True
+        args.remove("-s")
+    term = " ".join(args)
+    text = dictionary.meaning(term)
+    if synonyms:
+        text += "\n" + dictionary.synonym(term)
+    if antonyms:
+        text += "\n" + dictionary.antonym(term)
+    #console.output(text, "aqua")

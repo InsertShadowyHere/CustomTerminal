@@ -10,6 +10,7 @@ remind
 """
 # import keyboard
 # import mouse
+time_flags = {"-d": 60*60*24, "-h": 60*60, "-m": 60, "-s": 1}
 
 # TODO - establish more types of links
 def cmd_link(console, args):
@@ -85,3 +86,20 @@ def cmd_link(console, args):
 #             console.output(f"incomplete syntax", "red")
 #         except:
 #             console.output("something went wrong", "red")
+
+
+def cmd_remind(console, args):
+    """Schedules a reminder popup. WARNING: these do not persist through restart right now
+    FORMAT: schedule [task] (-d)ays (-h)ours (-m)inutes (-s)seconds"""
+
+    time_til = 0 # in seconds
+
+    for flag in time_flags:
+        if flag in args:
+            ind = args.index(flag)
+            time_til += time_flags[flag] * int(args[ind+1])
+            del args[ind:ind+2]
+
+    reminder = " ".join(args)
+    console.schedule(reminder, time_til, note=True)
+    console.output("reminder scheduled!", "green")

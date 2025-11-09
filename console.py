@@ -187,6 +187,20 @@ class Console(QMainWindow):
             f.write(f"[{datetime.now()}] {tb}")
         self.output("something went wrong (check the log!)", "red")
 
+    def schedule(self, info, time, note=False):
+        if note:
+            print('ooga booga')
+            QTimer.singleShot(time * 1000, lambda: self.open_note(info))
+
+    def open_note(self, info):
+        print("doing something!")
+        popup = QMessageBox(self)
+        popup.setWindowIcon(QIcon("resources/icon.png"))
+        popup.setWindowTitle("Reminder")
+        popup.setText(info)
+        popup.show()
+
+
     def run_console_line(self):
         """Handles processing of entering a line"""
         command = self.line_edit.text()
