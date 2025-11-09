@@ -74,7 +74,7 @@ class Console(QMainWindow):
                border: 0px solid #666;
                font-size: 18px;
            }""")
-        self.load_completer()
+        # self.load_completer()
         # choosing not to use the completer cus its really ugly
         # self.completer = QCompleter(self.completer_words)
         # self.line_edit.setCompleter(self.completer)
@@ -82,7 +82,7 @@ class Console(QMainWindow):
 
         self.setCentralWidget(self.container)
 
-        self.restore_focus()
+        self.reappear()
 
     def load_commands(self):
         """Reads all files from commands/ and loads all cmd_ functions."""
@@ -109,7 +109,12 @@ class Console(QMainWindow):
     # def load_completer(self):
     #     self.completer_words = list(self.commands.keys()) + list(self.links.keys()) + list(self.macros.keys())
 
-    def restore_focus(self):
+    def disappear(self):
+        """Hides the console (wrapper for .hide(), only used as companion to reappear()
+        because it's easy to remember lol"""
+        self.hide()
+
+    def reappear(self):
         """
         Brings terminal window back to top and puts it in focus.
         """
@@ -200,7 +205,7 @@ class Console(QMainWindow):
         self.past_events_label.setText('\n'.join(self.history))
         self.line_edit.clear()
         self.history_pos = 0
-        QTimer.singleShot(100, self.restore_focus)
+        QTimer.singleShot(100, self.reappear)
 
     def keyPressEvent(self, event):
         if self.isVisible():
