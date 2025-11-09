@@ -1,25 +1,16 @@
 """General utility commands
 This module contains utility functions for the console.
-Functions:
-define
-translate
-weather
-imbored
-monies
-search
-where
 """
 import pyautogui
 import webbrowser
 from random import randint
-import json
 from asteval import Interpreter
 from pint import UnitRegistry
 from PIL import ImageGrab
 from datetime import datetime
-from PyDictionary import PyDictionary
+import time
+from pyperclip import copy
 
-dictionary = PyDictionary()
 NAMES_FOR_REVOLUTIONS = []
 with open('resources/paths', 'r') as f:
     screenshots_path = f.readlines()[0]
@@ -49,6 +40,7 @@ def cmd_search(console, args):
     query = ' '.join(args)
     webbrowser.open(f"https://www.google.com/search?q={query}")
     console.output("success", "green")
+    console.disappear()
 
 
 def cmd_imbored(console, args):
@@ -153,22 +145,6 @@ def cmd_flip(console, args):
     console.output(f"You got {result}!", "blue")
 
 
-# TODO - actually find exchange rate
-def cmd_monies(console, args):
-    """Outputs exchange rates for various currencies.
-    FORMAT: monies [num of] [currency1] [currency2]"""
-    try:
-        curr_1_val = args[0]
-        curr_1 = args[1]
-        curr_2 = args[2]
-        print(curr_1)
-        print(curr_2)
-        rate = 1
-        console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val * rate} {curr_2}", "blue")
-    except IndexError:
-        console.output("invalid syntax", "red")
-
-
 def cmd_unit(console, args):
     """Converts between various units.
     FORMAT: unit [count] [starting_unit] [ending_unit]"""
@@ -210,22 +186,116 @@ def cmd_screenshot(console, args):
     console.output("Screenshot saved!", "green")
 
 
+# TODO - actually find exchange rate
+def cmd_monies(console, args):
+    """Outputs exchange rates for various currencies.
+    FORMAT: monies [num of] [currency1] [currency2]"""
+    try:
+        curr_1_val = args[0]
+        curr_1 = args[1]
+        curr_2 = args[2]
+        print(curr_1)
+        print(curr_2)
+        rate = 1
+        console.output(f"{curr_1_val} {curr_1} is equal to {curr_1_val * rate} {curr_2}", "blue")
+    except IndexError:
+        console.output("invalid syntax", "red")
+
+
+def cmd_copy(console, args):
+    """Copies last console output to clipboard.
+    Format: copy"""
+    text = console.output_area.text()
+    copy(text.strip())
+    console.output("copied to clipboard", "green")
+
+
+class Stopwatch:
+    def __init__(self, running=True):
+        self.start = time.time()
+        self.most_recent_start = self.start
+        self.running = running
+        self._elapsed = 0
+
+    def pause(self):
+        if self.running:
+            self._elapsed += time.time() - self.most_recent_start
+            self.running = False
+        else:
+            self.most_recent_start = time.time()
+            self.running = True
+
+    def __str__(self):
+        return str(self.elapsed())
+
+    def elapsed(self):
+        if self.running:
+            return round(self._elapsed + time.time() - self.most_recent_start, 2)
+        else:
+            return round(self._elapsed, 2)
+
+
+def cmd_stopwatch(console, args):
+    """Modifies stopwatches.
+    FORMAT: stopwatch [list/start/pause/end/name]"""
+    try:
+        cmd = args[0]
+        args = args[1:]
+        match cmd:
+            case "list": # lists all running stopwatches
+                console.output(', '.join(console.stopwatches), "aqua")
+            case "start": # creates new stopwatch starting at time of creation
+                paused = False
+                if "-p" in args:
+                    paused = True
+                    args.remove("-p")
+                name = args[0]
+                console.stopwatches[name] = Stopwatch(running=not paused)
+                console.output(f"created stopwatch {name}", "green")
+            case "pause" | "resume": # pauses or resumes a stopwatch
+                name = args[0]
+                sw = console.stopwatches.get(name, None)
+                if sw:
+                    sw.pause()
+                    console.output(f"paused stopwatch {name}", "green")
+                else:
+                    console.output("No such stopwatch found", "red")
+            case "end": # prints out a stopwatches information and deletes it
+                name = args[0]
+                sw = console.stopwatches.get(name, None)
+                if sw:
+                    time_elapsed = sw.elapsed()
+                    del console.stopwatches[name]
+                    console.output(f"stopped stopwatch {name} at {sw.elapsed()}s", "green")
+                else:
+                    console.output("No such stopwatch found", "red")
+            case _: # search for specific stopwatch and give information about it
+                name = cmd
+                sw = console.stopwatches.get(name, None)
+                if sw:
+                    console.output(f"Stopwatch {name} is at {sw.elapsed()}s and is currently{'' if sw.running else ' not'} running.", "aqua")
+                else:
+                    console.output("no such stopwatch found", "red")
+    except IndexError:
+        console.output("invalid syntax", "red")\
+
+
 # TODO - make work
-def cmd_define(console, args):
-    """Define a word. BROKEN!!!!!!
-    FORMAT: define [word] (-s)ynonyms (-a)ntonyms"""
-    antonyms = False
-    synonyms = False
-    if "-a" in args:
-        antonyms = True
-        args.remove("-a")
-    if "-s" in args:
-        synonyms = True
-        args.remove("-s")
-    term = " ".join(args)
-    text = dictionary.meaning(term)
-    if synonyms:
-        text += "\n" + dictionary.synonym(term)
-    if antonyms:
-        text += "\n" + dictionary.antonym(term)
+# def cmd_define(console, args):
+#     """Define a word. BROKEN!!!!!!
+#     FORMAT: define [word] (-s)ynonyms (-a)ntonyms"""
+#     antonyms = False
+#     synonyms = False
+#     if "-a" in args:
+#         antonyms = True
+#         args.remove("-a")
+#     if "-s" in args:
+#         synonyms = True
+#         args.remove("-s")
+#     term = " ".join(args)
+#     text = dictionary.meaning(term)
+#     if synonyms:
+#         text += "\n" + dictionary.synonym(term)
+#     if antonyms:
+#         text += "\n" + dictionary.antonym(term)
     #console.output(text, "aqua")

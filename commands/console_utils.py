@@ -1,9 +1,5 @@
 """Console-related utility commands
-
-
 """
-
-from pyperclip import copy
 
 
 def cmd_meta(console, args):
@@ -71,14 +67,6 @@ def cmd_about(console, args):
     """Displays information about the console.
     Format: about"""
     console.output(f"ConsoleC version {console.version}; Developed by InsertShadowyHere", "aqua")
-
-
-def cmd_copy(console, args):
-    """Copies last console output to clipboard.
-    Format: copy"""
-    text = console.output_area.text()
-    copy(text.strip())
-    console.output("copied to clipboard", "green")
 
 
 def cmd_devhelp(console, args):

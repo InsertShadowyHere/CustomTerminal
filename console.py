@@ -12,7 +12,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import QTimer
 
 from commands import __path__ as command_path
-
+from time import sleep
 
 class Console(QMainWindow):
     def __init__(self):
@@ -26,6 +26,7 @@ class Console(QMainWindow):
         self.macros = {}
         self.completer_words = None
         self.mode = None
+        self.stopwatches = {}
 
         self.load_commands()
         # self.load_completer()
@@ -187,19 +188,22 @@ class Console(QMainWindow):
             f.write(f"[{datetime.now()}] {tb}")
         self.output("something went wrong (check the log!)", "red")
 
-    def schedule(self, info, time, note=False):
-        if note:
-            print('ooga booga')
+    def schedule(self, info, time, type):
+        if type == "note":
             QTimer.singleShot(time * 1000, lambda: self.open_note(info))
+        elif type == "link":
+            pass
 
     def open_note(self, info):
-        print("doing something!")
         popup = QMessageBox(self)
         popup.setWindowIcon(QIcon("resources/icon.png"))
         popup.setWindowTitle("Reminder")
         popup.setText(info)
         popup.show()
 
+    def sleep(self, time):
+        """Sleeps for given time."""
+        sleep(time/1000)
 
     def run_console_line(self):
         """Handles processing of entering a line"""
@@ -219,7 +223,6 @@ class Console(QMainWindow):
         self.past_events_label.setText('\n'.join(self.history))
         self.line_edit.clear()
         self.history_pos = 0
-        QTimer.singleShot(100, self.reappear)
 
     def keyPressEvent(self, event):
         if self.isVisible():
