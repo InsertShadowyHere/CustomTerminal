@@ -6,7 +6,6 @@ from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMenu
 
 from console import Console
 
-
 def main():
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
@@ -54,7 +53,6 @@ def main():
     timer.start(100)
 
     sys.exit(app.exec())
-
 
 def toggle(window):
     if window.isVisible():

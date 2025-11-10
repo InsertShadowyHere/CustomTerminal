@@ -103,7 +103,7 @@ class Console(QMainWindow):
                 attr = getattr(module, attr_name)
                 if callable(attr) and attr_name.startswith('cmd_'):
                     cmd_name = attr_name[4:]  # remove cmd_
-                    self.commands[cmd_name] = logger(attr) # make sure the command is wrapped in a logger
+                    self.commands[cmd_name] = logger(attr)  # make sure the command is wrapped in a logger
                     self.command_sources[module_name].append(cmd_name)
                     print(f"Loaded command: {cmd_name} from {module_name}")
 
@@ -135,7 +135,7 @@ class Console(QMainWindow):
         args = cmd[1:]
         next_cmd = None
         if "&" in args:
-            next_cmd = ' '.join(args[args.index("&")+1:])
+            next_cmd = ' '.join(args[args.index("&") + 1:])
             args = args[:args.index("&")]
 
         cmd = cmd[0]
@@ -203,7 +203,7 @@ class Console(QMainWindow):
 
     def sleep(self, time):
         """Sleeps for given time."""
-        sleep(time/1000)
+        sleep(time / 1000)
 
     def run_console_line(self):
         """Handles processing of entering a line"""
@@ -251,12 +251,14 @@ class Console(QMainWindow):
 
 def logger(cmd):
     """Returns logger-decorated function."""
+
     def wrapper(console, args):
         try:
             cmd(console, args)
         except Exception as e:
             full_tb = traceback.format_exc()
             console.log(full_tb)
+
     wrapper.__name__ = cmd.__name__
     wrapper.__doc__ = cmd.__doc__
     return wrapper

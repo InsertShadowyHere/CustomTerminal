@@ -12,7 +12,7 @@ from unittest import case
 
 # import keyboard
 # import mouse
-time_flags = {"-d": 60*60*24, "-h": 60*60, "-m": 60, "-s": 1}
+time_flags = {"-d": 60 * 60 * 24, "-h": 60 * 60, "-m": 60, "-s": 1}
 
 # TODO - establish more types of links
 def cmd_link(console, args):
@@ -20,6 +20,7 @@ def cmd_link(console, args):
     Each link contains its own command information, and can contain an arbitrary number of
     individual commands.
     FORMAT: link [add/remove/edit/list]"""
+
     def get_link_list():
         with open("resource/links", "r") as f:
             file_data = f.readlines()
@@ -28,6 +29,7 @@ def cmd_link(console, args):
             for n, line in enumerate(file_data):
                 if line[:8] == "LINK - ":
                     link_inds.append([n, line])
+
     try:
         match args[0]:
             case "add" | "a":
@@ -89,13 +91,13 @@ def cmd_remind(console, args):
     """Schedules a reminder popup. WARNING: these do not persist through restart right now
     FORMAT: schedule [task] (-d)ays (-h)ours (-m)inutes (-s)econds"""
 
-    time_til = 0 # in seconds
+    time_til = 0  # in seconds
 
     for flag in time_flags:
         if flag in args:
             ind = args.index(flag)
-            time_til += time_flags[flag] * float(args[ind+1])
-            del args[ind:ind+2]
+            time_til += time_flags[flag] * float(args[ind + 1])
+            del args[ind:ind + 2]
 
     reminder = " ".join(args)
     console.schedule(reminder, time_til, "note")

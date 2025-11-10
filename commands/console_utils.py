@@ -1,7 +1,6 @@
 """Console-related utility commands
 """
 
-
 def cmd_meta(console, args):
     """Edits various console settings. Current settings include opacity (opacity),
     background color (bg), and text color (text).
@@ -42,7 +41,6 @@ def cmd_meta(console, args):
     except IndexError:
         console.output("incomplete syntax", "red")
 
-
 def cmd_help(console, args):
     """Displays a list of available commands or detailed info about a specific command.
     Format: help [command_name] to return individual command info, or help to get all commands."""
@@ -62,12 +60,10 @@ def cmd_help(console, args):
         text = "\n".join(text)
         console.output(f"Raphael's Console v{console.version} | Built-in Commands\n{text}", "aqua")
 
-
 def cmd_about(console, args):
     """Displays information about the console.
     Format: about"""
     console.output(f"ConsoleC version {console.version}; Developed by InsertShadowyHere", "aqua")
-
 
 def cmd_devhelp(console, args):
     """Returns information to help new developers (prints devhelp.txt contents lol)
@@ -84,13 +80,11 @@ def cmd_devhelp(console, args):
     except FileNotFoundError:
         console.output("the devhelp file was deleted! :(", "red")
 
-
 def cmd_clear(console, args):
     """Clears the console.
     Format: clear"""
     console.history = []
     console.output("console cleared", "green")
-
 
 def cmd_mode(console, args):
     """Sets the console to a mode, treating it as if the command was prefixed with the mode.
@@ -103,12 +97,10 @@ def cmd_mode(console, args):
     except IndexError:
         console.output("invalid parameters", "red")
 
-
 def cmd_quit(console, args):
     """Quits the console.
     Format: quit"""
     console.close()
-
 
 def cmd_update(console, args):
     """Updates the command list based on the files in commands/
