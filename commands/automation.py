@@ -8,11 +8,21 @@ stopwatch
 remind
 
 """
-from unittest import case
-
-# import keyboard
-# import mouse
 time_flags = {"-d": 60 * 60 * 24, "-h": 60 * 60, "-m": 60, "-s": 1}
+
+def get_links():
+    with open("resources/links", "r") as f:
+        file_data = f.readlines()
+        links = {}
+        current_name = None
+        for n, line in enumerate(file_data):
+            if line[:7] == "LINK - ":
+                current_name = line[7:].strip()
+                links[current_name] = []
+            elif current_name:
+                links[current_name].append(line)
+    print("adding new stuff", links)
+    return links
 
 # TODO - establish more types of links
 def cmd_link(console, args):
@@ -20,32 +30,41 @@ def cmd_link(console, args):
     Each link contains its own command information, and can contain an arbitrary number of
     individual commands.
     FORMAT: link [add/remove/edit/list]"""
-
-    def get_link_list():
-        with open("resource/links", "r") as f:
-            file_data = f.readlines()
-            link_list = {}
-            link_inds = []
-            for n, line in enumerate(file_data):
-                if line[:8] == "LINK - ":
-                    link_inds.append([n, line])
-
+    if console.links == {}:
+        console.links = get_links()
     try:
         match args[0]:
             case "add" | "a":
                 name = args[1]
-                with open("resources/links", "a") as f:
-                    pass
+                if name in console.links:
+                    console.output("that link already exists!", "red")
+                    return
+                console.mode = f"link _adding {name}"
+                console.links[name] = []
+                console.output("creating link... type the first line!", "green")
             case "remove" | "delete" | "del" | "rem" | "r":
                 pass
             case "edit" | "e":
                 pass
             case "list" | "l":
-                if len(args) == 1:
-                    with open("resources/links", "r") as f:
-                        pass
-
-                pass
+                links = get_links()
+                console.output("".join(links), "green")
+            case "_adding":
+                name = args[1]
+                if args[2] == "done":
+                    console.mode = None
+                    with open("resources/links", "a") as f:
+                        f.write(f"LINK - {name}\n" + "".join([i + "\n" for i in console.links[name]]))
+                    console.output("link created!", "green")
+                    return
+                console.links[name].append(' '.join(args[2:]))
+                console.output("line added!", "green")
+            case _:
+                link = console.links.get(args[0], None)
+                if link:
+                    console.output("".join(link), "green")
+                else:
+                    console.output("no such link found", "red")
     except IndexError:
         console.output("invalid syntax", "red")
 
@@ -100,5 +119,8 @@ def cmd_remind(console, args):
             del args[ind:ind + 2]
 
     reminder = " ".join(args)
-    console.schedule(reminder, time_til, "note")
+    if time_til != 0:
+        console.schedule(reminder, time_til, "note")
+    else:
+        console.open_note(reminder)
     console.output("reminder set!", "green")

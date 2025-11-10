@@ -92,7 +92,7 @@ def cmd_mode(console, args):
     This command can save subsettings too, so mode link add works fine. Use exit to exit the mode.
     FORMAT: mode [command]"""
     try:
-        console.mode = ' '.join(args) + " "
+        console.mode = ' '.join(args)
         console.output(f"set mode to {' '.join(args)}", "green")
     except IndexError:
         console.output("invalid parameters", "red")

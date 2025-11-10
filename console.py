@@ -146,14 +146,10 @@ class Console(QMainWindow):
             func = self.commands[cmd]
             func(self, args)
 
-        elif cmd in self.links.keys():
-            link = self.links[cmd]
-            if link[1] == "url":
-                webbrowser.open(link[0])
-                self.output(f"opening link {link[0]}", "green")
+        elif x := self.links.get(cmd, None):
+            self.execute(" & ".join(map(str.strip, x)))
 
         elif cmd in self.macros:
-            print('macroing!')
             self.clearFocus()
             self.hide()
             keyboard_events, mouse_events = self.macros[cmd]
@@ -192,7 +188,7 @@ class Console(QMainWindow):
         if type == "note":
             QTimer.singleShot(time * 1000, lambda: self.open_note(info))
         elif type == "link":
-            pass
+            QTimer.singleShot(time * 1000, lambda: self.execute(" & ".join(info)))
 
     def open_note(self, info):
         popup = QMessageBox(self)
@@ -201,20 +197,15 @@ class Console(QMainWindow):
         popup.setText(info)
         popup.show()
 
-    def sleep(self, time):
-        """Sleeps for given time."""
-        sleep(time / 1000)
-
     def run_console_line(self):
         """Handles processing of entering a line"""
         command = self.line_edit.text()
         if self.mode:
-            if command == "exit":
+            if command == "exit" and "link _adding" not in self.mode:
                 self.mode = None
                 self.output(f"exiting mode {str(self.mode)}", "green")
             else:
-                command = self.mode + command
-                self.execute(command)
+                self.execute(f"{self.mode} {command}")
         else:
             self.execute(command)
         if len(self.history) > 19:
