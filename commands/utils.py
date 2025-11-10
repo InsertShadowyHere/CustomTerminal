@@ -25,6 +25,7 @@ def cmd_math(console, args):
     """Evaluates arithmetic expressions
     FORMAT: math [args]     """
     exp = ''.join(args)
+    print(exp)
     ast_eval = Interpreter(no_print=True)
     result = ast_eval(exp)
     if ast_eval.error is not None:

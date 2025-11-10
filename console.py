@@ -200,6 +200,7 @@ class Console(QMainWindow):
     def run_console_line(self):
         """Handles processing of entering a line"""
         command = self.line_edit.text()
+        self.line_edit.clear()
         if self.mode:
             if command == "exit" and "link _adding" not in self.mode:
                 self.mode = None
@@ -212,7 +213,6 @@ class Console(QMainWindow):
             self.history.pop(0)
         self.history.append(command)
         self.past_events_label.setText('\n'.join(self.history))
-        self.line_edit.clear()
         self.history_pos = 0
 
     def keyPressEvent(self, event):

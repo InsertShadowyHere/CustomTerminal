@@ -21,8 +21,14 @@ def get_links():
                 links[current_name] = []
             elif current_name:
                 links[current_name].append(line)
-    print("adding new stuff", links)
     return links
+
+def write_links(links):
+    with open("resources/links", "w") as f:
+        for name, link in links.items():
+            f.write(f"LINK - {name}\n")
+            for line in link:
+                f.write(line)
 
 # TODO - establish more types of links
 def cmd_link(console, args):
@@ -43,22 +49,51 @@ def cmd_link(console, args):
                 console.links[name] = []
                 console.output("creating link... type the first line!", "green")
             case "remove" | "delete" | "del" | "rem" | "r":
-                pass
+                if args[1] in console.links:
+                    del console.links[args[1]]
+                    write_links(console.links)
+                    console.output(f"{args[1]} has been deleted", "green")
+                else:
+                    console.output(f"{args[1]} does not exist", "red")
             case "edit" | "e":
-                pass
+                name = args[1]
+                if name in console.links:
+                    console.mode = f"link _editing {name} 0"
+                    console.line_edit.setText(console.links[name][0])
+                    console.output("editing link... type the first line!", "red")
+                else:
+                    console.output(f"{args[1]} does not exist", "red")
             case "list" | "l":
                 links = get_links()
-                console.output("".join(links), "green")
+                console.output("\n".join(links), "green")
             case "_adding":
                 name = args[1]
                 if args[2] == "done":
                     console.mode = None
+                    if not console.links[name]:
+                        console.output("you finished too early, link wasn't made. take your time bro", "red")
+                        del console.links[name]
+                        return
                     with open("resources/links", "a") as f:
                         f.write(f"LINK - {name}\n" + "".join([i + "\n" for i in console.links[name]]))
-                    console.output("link created!", "green")
+                    console.output(f"link {name} created!", "green")
                     return
                 console.links[name].append(' '.join(args[2:]))
                 console.output("line added!", "green")
+            case "_editing":
+                pos = int(args[2])
+                name = args[1]
+                console.links[name][pos] = " ".join(args[3:]) + "\n"
+                pos += 1
+                if pos == len(console.links[name]):
+                    console.mode = None
+                    write_links(console.links)
+                    console.output("link fully edited!", "green")
+                    return
+                console.line_edit.setText(console.links[name][pos].strip())
+                console.mode = f"link _editing {name} {pos}"
+                console.output("line edited!", "green")
+
             case _:
                 link = console.links.get(args[0], None)
                 if link:
