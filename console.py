@@ -29,6 +29,7 @@ class Console(QMainWindow):
         else:
             self.links = {}
         self.macros = {}
+        self.tasks = {}
         self.completer_words = None
         self.mode = None
         self.stopwatches = {}
@@ -190,11 +191,15 @@ class Console(QMainWindow):
             f.write(f"[{datetime.now()}] {tb}")
         self.output("something went wrong (check the log!)", "red")
 
-    def schedule(self, info, time, sch_type):
+    def schedule(self, info, time, sch_type, repeat):
         if sch_type == "note":
             QTimer.singleShot(time * 1000, lambda: self.open_note(info))
         elif sch_type == "link":
-            QTimer.singleShot(time * 1000, lambda: self.run_link(info))
+            repeat -= 1
+            if repeat:
+                QTimer.singleShot(time * 1000, lambda: (self.run_link(info), self.schedule(info, time, sch_type, repeat)))
+            else:
+                QTimer.singleShot(time * 1000, lambda: (self.run_link(info)))
 
     def run_link(self, link):
         if x := self.links.get(link, None):

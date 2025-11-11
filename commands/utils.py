@@ -3,14 +3,16 @@ This module contains utility functions for the console.
 """
 import pyautogui
 import webbrowser
-from random import randint
+from random import randint, choice
 from asteval import Interpreter
 from pint import UnitRegistry
 from PIL import ImageGrab
 from datetime import datetime
 import time
 from pyperclip import copy
-
+time_flags = {"-d": 60 * 60 * 24, "-h": 60 * 60, "-m": 60, "-s": 1}
+with open("resources/answers", "r") as f:
+    answers = list(map(str.strip, f.readlines()))
 NAMES_FOR_REVOLUTIONS = []
 with open('resources/paths', 'r') as f:
     screenshots_path = f.readlines()[0]
@@ -58,7 +60,7 @@ def cmd_todo(console, args):
         if not args:
             with open("resources/todo", "r") as f:
                 items = f.read().splitlines()
-                text = '\n'.join(f"{n + 1}. {item.split(' !/! ')[1]} {item.split(' !/! ')[0]}" for n, item in enumerate(items))
+                text = '\n'.join(f"{n + 1}. {item}" for n, item in enumerate(items))
             if text == "":
                 console.output("To-do list is empty, add an item", "aqua")
                 return
@@ -272,6 +274,14 @@ def cmd_stopwatch(console, args):
  \
 # TODO - make work
 
+def cmd_8ball(console, args):
+    """Returns the answer from the great 8-ball in the sky
+    FORMAT: 8ball [question]"""
+    question = " ".join(args)
+    if question == "is the world a donut?" or question == "Is the world a donut?":
+        console.output("Of course!", "green")
+    else:
+        console.output(choice(answers), "green")
 
 # def cmd_define(console, args):
 #     """Define a word. BROKEN!!!!!!

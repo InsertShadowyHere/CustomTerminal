@@ -161,21 +161,34 @@ def cmd_remind(console, args):
         console.open_note(reminder)
     console.output("reminder set!", "green")
 
+def cmd_task(console, args):
+    try:
+        match args[0]:
+            case "schedule":
+                time_til = 0  # in seconds
+
+                for flag in time_flags:
+                    if flag in args:
+                        ind = args.index(flag)
+                        time_til += time_flags[flag] * float(args[ind + 1])
+                        del args[ind:ind + 2]
+
+                repeat = 0
+                if "-r" in args:
+                    ind = args.index("-r")
+                    repeat = int(args[ind + 1])
+                    del args[ind:ind + 2]
+
+                if time_til != 0:
+                    console.schedule(args[0], time_til, "link", repeat)
+                else:
+                    console.run_link(args[0])
+                console.output("task scheduled!", "green")
+    except:
+        pass
+
 
 def cmd_schedule(console, args):
     """Schedules a link. WARNING: these do not persist through restart right now
-    FORMAT: schedule [link] (-d)ays (-h)ours (-m)inutes (-s)econds"""
+    FORMAT: schedule [link] (-d)ays [#] (-h)ours [#] (-m)inutes [#] (-s)econds [#] -(r)epeat [#]"""
 
-    time_til = 0  # in seconds
-
-    for flag in time_flags:
-        if flag in args:
-            ind = args.index(flag)
-            time_til += time_flags[flag] * float(args[ind + 1])
-            del args[ind:ind + 2]
-
-    if time_til != 0:
-        console.schedule(args[0], time_til, "link")
-    else:
-        console.run_link(args[0])
-    console.output("reminder set!", "green")

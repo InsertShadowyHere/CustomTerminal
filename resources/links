@@ -2,3 +2,5 @@ LINK - test
 remind -s 3 one
 sleep -s 3
 remind -s 3 two
+LINK - sch_test
+remind hi!
