@@ -9,6 +9,7 @@ remind
 
 """
 time_flags = {"-d": 60 * 60 * 24, "-h": 60 * 60, "-m": 60, "-s": 1}
+OPEN_AI_KEY = "sk-P3x8J8Wse2Zgz4RJ4F846I33dH4Pq7OVVLI04Rf72w9tItP3"
 
 def get_links():
     with open("resources/links", "r") as f:
@@ -30,7 +31,7 @@ def write_links(links):
             for line in link:
                 f.write(line)
 
-# TODO - establish more types of links
+
 def cmd_link(console, args):
     """Modifies the link system, which is ConsoleC's way of creating custom commands.
     Each link contains its own command information, and can contain an arbitrary number of
@@ -158,4 +159,23 @@ def cmd_remind(console, args):
         console.schedule(reminder, time_til, "note")
     else:
         console.open_note(reminder)
+    console.output("reminder set!", "green")
+
+
+def cmd_schedule(console, args):
+    """Schedules a link. WARNING: these do not persist through restart right now
+    FORMAT: schedule [link] (-d)ays (-h)ours (-m)inutes (-s)econds"""
+
+    time_til = 0  # in seconds
+
+    for flag in time_flags:
+        if flag in args:
+            ind = args.index(flag)
+            time_til += time_flags[flag] * float(args[ind + 1])
+            del args[ind:ind + 2]
+
+    if time_til != 0:
+        console.schedule(args[0], time_til, "link")
+    else:
+        console.run_link(args[0])
     console.output("reminder set!", "green")

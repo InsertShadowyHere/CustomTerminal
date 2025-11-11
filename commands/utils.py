@@ -58,7 +58,7 @@ def cmd_todo(console, args):
         if not args:
             with open("resources/todo", "r") as f:
                 items = f.read().splitlines()
-                text = '\n'.join(f"{n + 1}. {item}" for n, item in enumerate(items))
+                text = '\n'.join(f"{n + 1}. {item.split(' !/! ')[1]} {item.split(' !/! ')[0]}" for n, item in enumerate(items))
             if text == "":
                 console.output("To-do list is empty, add an item", "aqua")
                 return
@@ -271,6 +271,8 @@ def cmd_stopwatch(console, args):
         console.output("invalid syntax", "red") \
  \
 # TODO - make work
+
+
 # def cmd_define(console, args):
 #     """Define a word. BROKEN!!!!!!
 #     FORMAT: define [word] (-s)ynonyms (-a)ntonyms"""

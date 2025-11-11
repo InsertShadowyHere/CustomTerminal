@@ -98,7 +98,7 @@ def cmd_mode(console, args):
         console.output("invalid parameters", "red")
 
 def cmd_quit(console, args):
-    """Quits the console.
+    """Quits the console application.
     Format: quit"""
     console.close()
 

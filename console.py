@@ -11,6 +11,7 @@ from PySide6.QtGui import *
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QTimer
 
+import commands.automation
 from commands import __path__ as command_path
 from time import sleep
 
@@ -22,13 +23,16 @@ class Console(QMainWindow):
         self.version = 0.1
         self.commands = {}
         self.command_sources = {}
-        self.links = {}
+        self.load_commands()
+        if 'link' in self.commands:
+            self.links = commands.automation.get_links()
+        else:
+            self.links = {}
         self.macros = {}
         self.completer_words = None
         self.mode = None
         self.stopwatches = {}
 
-        self.load_commands()
         # self.load_completer()
         # print(self.completer_words)
 
@@ -49,7 +53,7 @@ class Console(QMainWindow):
         self.setWindowTitle("Terminal")
 
         palette = self.palette()
-        palette.setColor(QPalette.ColorRole.Window, QColor(0, 0, 0, 127))  # 127/255 = ~50%
+        palette.setColor(QPalette.ColorRole.Window, QColor(0, 0, 0, 127))
         self.setPalette(palette)
 
         self.container = QWidget()
@@ -147,7 +151,9 @@ class Console(QMainWindow):
             func(self, args)
 
         elif x := self.links.get(cmd, None):
-            self.execute(" & ".join(map(str.strip, x)))
+            for i in map(str.strip, x):
+                self.execute(i)
+            self.output(f"link {cmd} executed!", "green")
 
         elif cmd in self.macros:
             self.clearFocus()
@@ -184,11 +190,19 @@ class Console(QMainWindow):
             f.write(f"[{datetime.now()}] {tb}")
         self.output("something went wrong (check the log!)", "red")
 
-    def schedule(self, info, time, type):
-        if type == "note":
+    def schedule(self, info, time, sch_type):
+        if sch_type == "note":
             QTimer.singleShot(time * 1000, lambda: self.open_note(info))
-        elif type == "link":
-            QTimer.singleShot(time * 1000, lambda: self.execute(" & ".join(info)))
+        elif sch_type == "link":
+            QTimer.singleShot(time * 1000, lambda: self.run_link(info))
+
+    def run_link(self, link):
+        if x := self.links.get(link, None):
+            for i in map(str.strip, x):
+                self.execute(i)
+            self.output(f"link {link} executed!", "green")
+        else:
+            self.output(f"link {link} not found!", "red")
 
     def open_note(self, info):
         popup = QMessageBox(self)

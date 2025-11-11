@@ -1,4 +1,4 @@
 LINK - test
-frog
-too h
-coo e
+remind -s 3 one
+sleep -s 3
+remind -s 3 two
