@@ -46,7 +46,8 @@ class Console(QMainWindow):
         self.output_log = ""
 
         # PySide6 window setup
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.showFullScreen()
         self.defaultOpacity = 0.85
         self.setWindowOpacity(self.defaultOpacity)
@@ -74,6 +75,7 @@ class Console(QMainWindow):
         self.layout.addWidget(self.output_area)
 
         self.line_edit = QLineEdit()
+        self.line_edit.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.line_edit.setStyleSheet("""QLineEdit {
                color: white;
                background-color: rgba(0, 0, 0, 255);
@@ -127,7 +129,7 @@ class Console(QMainWindow):
         self.show()  # show the window
         self.raise_()  # bring to top
         self.activateWindow()  # request focus
-        self.line_edit.setFocus()  # put cursor in input
+        QTimer.singleShot(50, lambda: self.line_edit.setFocus())
 
     def execute(self, cmd):
         """
@@ -233,6 +235,9 @@ class Console(QMainWindow):
         self.history.append(command)
         self.past_events_label.setText('\n'.join(self.history))
         self.history_pos = 0
+
+    def quit(self):
+        QApplication.quit()
 
     def keyPressEvent(self, event):
         if self.isVisible():

@@ -100,7 +100,7 @@ def cmd_mode(console, args):
 def cmd_quit(console, args):
     """Quits the console application.
     Format: quit"""
-    console.close()
+    console.quit()
 
 def cmd_update(console, args):
     """Updates the command list based on the files in commands/

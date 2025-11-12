@@ -56,11 +56,9 @@ def main():
 
 def toggle(window):
     if window.isVisible():
-        window.hide()
+        window.disappear()
     else:
-        window.show()
-        window.raise_()
-        window.activateWindow()
+        window.reappear()
 
 if __name__ == "__main__":
     main()
